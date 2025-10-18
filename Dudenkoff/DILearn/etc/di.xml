@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Dependency Injection Configuration
+ * 
+ * This is the HEART of Magento 2's Dependency Injection system.
+ * Here you configure:
+ * - Preferences (interface to class mapping)
+ * - Virtual Types (configured instances)
+ * - Plugins (interceptors)
+ * - Constructor Arguments
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <!-- ====================================================================
+         EXAMPLE 1: PREFERENCE (Interface to Implementation Mapping)
+         This tells Magento: "When someone asks for LoggerInterface, 
+         give them BasicLogger implementation"
+         ==================================================================== -->
+    <preference for="Dudenkoff\DILearn\Api\LoggerInterface" 
+                type="Dudenkoff\DILearn\Model\BasicLogger" />
+
+    <!-- ====================================================================
+         EXAMPLE 2: PREFERENCE OVERRIDE
+         You can override any interface implementation this way.
+         Uncomment to switch to AdvancedLogger:
+         ==================================================================== -->
+    <!-- <preference for="Dudenkoff\DILearn\Api\LoggerInterface" 
+                    type="Dudenkoff\DILearn\Model\AdvancedLogger" /> -->
+
+    <!-- ====================================================================
+         EXAMPLE 3: CONSTRUCTOR ARGUMENT INJECTION
+         You can inject specific values into constructor parameters
+         ==================================================================== -->
+    <type name="Dudenkoff\DILearn\Service\GreetingService">
+        <arguments>
+            <!-- Inject a simple string value -->
+            <argument name="defaultGreeting" xsi:type="string">Hello from DI.xml!</argument>
+            
+            <!-- Inject a boolean -->
+            <argument name="isEnabled" xsi:type="boolean">true</argument>
+            
+            <!-- Inject a number -->
+            <argument name="maxRetries" xsi:type="number">3</argument>
+            
+            <!-- Inject an array -->
+            <argument name="allowedLanguages" xsi:type="array">
+                <item name="en" xsi:type="string">English</item>
+                <item name="es" xsi:type="string">Spanish</item>
+                <item name="fr" xsi:type="string">French</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- ====================================================================
+         EXAMPLE 4: VIRTUAL TYPE
+         Creates a "virtual" class without creating a PHP file.
+         Useful for creating configured instances of existing classes.
+         ==================================================================== -->
+    <virtualType name="Dudenkoff\DILearn\Model\SpecialLogger" 
+                 type="Dudenkoff\DILearn\Model\BasicLogger">
+        <arguments>
+            <argument name="prefix" xsi:type="string">[SPECIAL]</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Use the virtual type in another class -->
+    <type name="Dudenkoff\DILearn\Service\NotificationService">
+        <arguments>
+            <argument name="logger" xsi:type="object">Dudenkoff\DILearn\Model\SpecialLogger</argument>
+        </arguments>
+    </type>
+
+    <!-- ====================================================================
+         EXAMPLE 5: PLUGIN (INTERCEPTOR)
+         Plugins allow you to modify method behavior without changing the class.
+         Types: before, after, around
+         ==================================================================== -->
+    <type name="Dudenkoff\DILearn\Service\GreetingService">
+        <plugin name="greeting_logger_plugin" 
+                type="Dudenkoff\DILearn\Plugin\GreetingLoggerPlugin" 
+                sortOrder="10" 
+                disabled="false" />
+    </type>
+
+    <!-- ====================================================================
+         EXAMPLE 6: SHARED vs NON-SHARED INSTANCES
+         By default, all classes are shared (singleton).
+         Set shared="false" to get a new instance each time.
+         ==================================================================== -->
+    <type name="Dudenkoff\DILearn\Model\Counter" shared="false">
+        <!-- This will create a new instance each time it's requested -->
+    </type>
+
+    <!-- ====================================================================
+         EXAMPLE 7: FACTORY PATTERN
+         Magento auto-generates Factory classes for any class.
+         Just add "Factory" to the class name in constructor.
+         No configuration needed, but shown here for completeness.
+         ==================================================================== -->
+    <!-- Magento auto-generates: Dudenkoff\DILearn\Model\MessageFactory -->
+
+    <!-- ====================================================================
+         EXAMPLE 8: PROXY PATTERN
+         Proxies delay instantiation until the object is actually used.
+         Useful for heavy objects that might not always be needed.
+         ==================================================================== -->
+    <type name="Dudenkoff\DILearn\Service\HeavyService">
+        <arguments>
+            <!-- Add \Proxy to delay instantiation -->
+            <argument name="processor" xsi:type="object">Dudenkoff\DILearn\Model\HeavyProcessor\Proxy</argument>
+        </arguments>
+    </type>
+
+    <!-- ====================================================================
+         EXAMPLE 9: CONSOLE COMMANDS
+         Register CLI commands
+         ==================================================================== -->
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="di_learn_demo" xsi:type="object">Dudenkoff\DILearn\Console\Command\DemoCommand</item>
+            </argument>
+        </arguments>
+    </type>
+
+</config>
+
