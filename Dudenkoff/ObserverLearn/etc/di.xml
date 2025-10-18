@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Dependency Injection Configuration
+ * 
+ * Configure dependencies for observers and other classes.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <!-- Register console command -->
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="observer_demo" xsi:type="object">Dudenkoff\ObserverLearn\Console\Command\ObserverDemoCommand</item>
+            </argument>
+        </arguments>
+    </type>
+
+</config>
+

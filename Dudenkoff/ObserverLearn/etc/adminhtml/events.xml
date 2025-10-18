@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Admin Events Configuration
+ * 
+ * Events registered here ONLY work in the ADMIN area.
+ * 
+ * USE CASES:
+ * - Admin-specific logging
+ * - Backend notifications
+ * - Admin user activity tracking
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+
+    <!-- Listen to admin login (admin only) -->
+    <event name="backend_auth_user_login_success">
+        <observer name="dudenkoff_log_admin_login" 
+                  instance="Dudenkoff\ObserverLearn\Observer\Admin\AdminLoginObserver" />
+    </event>
+
+    <!-- Listen to admin order save (admin only) -->
+    <event name="sales_order_save_after">
+        <observer name="dudenkoff_notify_order_update" 
+                  instance="Dudenkoff\ObserverLearn\Observer\Admin\OrderSaveObserver" />
+    </event>
+
+</config>
+

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Module Declaration
+ * 
+ * Declares the ObserverLearn module for learning Magento 2 Event/Observer pattern.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    <module name="Dudenkoff_ObserverLearn" setup_version="1.0.0">
+        <sequence>
+            <!-- Add dependencies here if needed -->
+        </sequence>
+    </module>
+</config>
+

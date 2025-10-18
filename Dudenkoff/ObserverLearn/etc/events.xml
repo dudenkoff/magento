@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Global Events Configuration
+ * 
+ * WHAT IS THIS FILE?
+ * This is where you register observers to listen to events.
+ * When an event is dispatched, all registered observers will execute.
+ * 
+ * SCOPE:
+ * This file (etc/events.xml) applies GLOBALLY to all areas.
+ * 
+ * AREA-SPECIFIC:
+ * - etc/frontend/events.xml - Frontend only
+ * - etc/adminhtml/events.xml - Admin only
+ * - etc/webapi_rest/events.xml - REST API only
+ * - etc/crontab/events.xml - Cron only
+ * 
+ * KEY CONCEPTS:
+ * 1. Event Name - What event to listen to
+ * 2. Observer Name - Unique identifier for this observer
+ * 3. Observer Class - Class that handles the event
+ * 4. Disabled - Enable/disable observer
+ * 5. Shared - Whether observer instance is shared (default: false)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+
+    <!-- ====================================================================
+         EXAMPLE 1: LISTENING TO CORE MAGENTO EVENTS
+         
+         Magento dispatches hundreds of events throughout the system.
+         You can listen to these without modifying core code.
+         ==================================================================== -->
+    
+    <!-- Listen to customer login event -->
+    <event name="customer_login">
+        <observer name="dudenkoff_observe_customer_login" 
+                  instance="Dudenkoff\ObserverLearn\Observer\CustomerLoginObserver" />
+    </event>
+
+    <!-- Listen to product save before event -->
+    <event name="catalog_product_save_before">
+        <observer name="dudenkoff_observe_product_save_before" 
+                  instance="Dudenkoff\ObserverLearn\Observer\ProductSaveBeforeObserver" />
+    </event>
+
+    <!-- Listen to product save after event -->
+    <event name="catalog_product_save_after">
+        <observer name="dudenkoff_observe_product_save_after" 
+                  instance="Dudenkoff\ObserverLearn\Observer\ProductSaveAfterObserver" />
+    </event>
+
+    <!-- ====================================================================
+         EXAMPLE 2: CUSTOM EVENTS
+         
+         You can dispatch your own custom events and listen to them.
+         This is useful for decoupling your code.
+         ==================================================================== -->
+    
+    <!-- Listen to custom order processed event -->
+    <!-- Multiple observers can listen to the same event -->
+    <event name="dudenkoff_order_processed">
+        <observer name="dudenkoff_send_notification" 
+                  instance="Dudenkoff\ObserverLearn\Observer\OrderProcessedNotificationObserver" />
+        <observer name="dudenkoff_update_analytics" 
+                  instance="Dudenkoff\ObserverLearn\Observer\OrderProcessedAnalyticsObserver" />
+    </event>
+
+    <!-- ====================================================================
+         EXAMPLE 3: OBSERVER WITH DISABLED FLAG
+         
+         You can disable an observer without removing the XML.
+         Useful for testing or temporary deactivation.
+         ==================================================================== -->
+    
+    <event name="dudenkoff_custom_event">
+        <observer name="dudenkoff_disabled_observer" 
+                  instance="Dudenkoff\ObserverLearn\Observer\DisabledObserver"
+                  disabled="true" />
+    </event>
+
+    <!-- ====================================================================
+         EXAMPLE 4: MULTIPLE OBSERVERS ON SAME EVENT
+         
+         Multiple observers can listen to the same event.
+         They execute in the order they're defined (or by shared/instance).
+         ==================================================================== -->
+    
+    <event name="dudenkoff_demo_event">
+        <observer name="dudenkoff_first_observer" 
+                  instance="Dudenkoff\ObserverLearn\Observer\FirstObserver" />
+        <observer name="dudenkoff_second_observer" 
+                  instance="Dudenkoff\ObserverLearn\Observer\SecondObserver" />
+        <observer name="dudenkoff_third_observer" 
+                  instance="Dudenkoff\ObserverLearn\Observer\ThirdObserver" />
+    </event>
+
+    <!-- ====================================================================
+         EXAMPLE 5: REQUEST FLOW EVENTS
+         
+         Controller dispatch events - useful for logging, redirects, etc.
+         ==================================================================== -->
+    
+    <!-- Before any controller action -->
+    <event name="controller_action_predispatch">
+        <observer name="dudenkoff_log_controller_predispatch" 
+                  instance="Dudenkoff\ObserverLearn\Observer\ControllerPredispatchObserver" />
+    </event>
+
+    <!-- After any controller action -->
+    <event name="controller_action_postdispatch">
+        <observer name="dudenkoff_log_controller_postdispatch" 
+                  instance="Dudenkoff\ObserverLearn\Observer\ControllerPostdispatchObserver" />
+    </event>
+
+</config>
+
