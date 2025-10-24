@@ -236,7 +236,7 @@ Get token:
 ```bash
 curl -X POST "http://localhost:8080/rest/V1/integration/admin/token" \
   -H "Content-Type: application/json" \
-  -d '{"username": "admin", "password": "your_password"}'
+  -d '{"username": "admin", "password": "admin123"}'
 ```
 
 Response:
@@ -248,7 +248,7 @@ Store in variable:
 ```bash
 TOKEN=$(curl -s -X POST "http://localhost:8080/rest/V1/integration/admin/token" \
   -H "Content-Type: application/json" \
-  -d '{"username":"admin","password":"your_password"}' | tr -d '"')
+  -d '{"username":"admin","password":"admin123"}' | tr -d '"')
 ```
 
 Use token:
