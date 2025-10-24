@@ -4,6 +4,12 @@ A comprehensive guide covering ACL (Access Control List), authentication, and RE
 
 **Base URL:** `http://localhost:8080/rest`
 
+> **⚠️ IMPORTANT:** All curl commands with SearchCriteria (containing `[]`) **MUST** use the `-g` or `--globoff` flag!
+> ```bash
+> curl -g "http://localhost:8080/rest/V1/endpoint?searchCriteria[...]"
+> ```
+> Without this flag, curl treats `[]` as glob patterns and will fail with "bad range in URL" error.
+
 ---
 
 ## Table of Contents
@@ -327,50 +333,32 @@ curl -s "http://localhost:8080/rest/V1/dudenkoff/notes/1" | jq '.'
 
 Get all notes:
 ```bash
-curl -s "http://localhost:8080/rest/V1/dudenkoff/notes/search?searchCriteria=" | jq '.'
+curl -gs "http://localhost:8080/rest/V1/dudenkoff/notes/search?searchCriteria=" | jq '.'
 ```
 
 Filter by author:
 ```bash
-curl -X GET "http://localhost:8080/rest/V1/dudenkoff/notes/search?\
-searchCriteria[filterGroups][0][filters][0][field]=author&\
-searchCriteria[filterGroups][0][filters][0][value]=Dudenkoff&\
-searchCriteria[filterGroups][0][filters][0][conditionType]=eq"
+curl -g "http://localhost:8080/rest/V1/dudenkoff/notes/search?searchCriteria[filterGroups][0][filters][0][field]=author&searchCriteria[filterGroups][0][filters][0][value]=Dudenkoff&searchCriteria[filterGroups][0][filters][0][conditionType]=eq"
 ```
 
 Filter published notes only:
 ```bash
-curl -X GET "http://localhost:8080/rest/V1/dudenkoff/notes/search?\
-searchCriteria[filterGroups][0][filters][0][field]=is_published&\
-searchCriteria[filterGroups][0][filters][0][value]=1&\
-searchCriteria[filterGroups][0][filters][0][conditionType]=eq"
+curl -g "http://localhost:8080/rest/V1/dudenkoff/notes/search?searchCriteria[filterGroups][0][filters][0][field]=is_published&searchCriteria[filterGroups][0][filters][0][value]=1&searchCriteria[filterGroups][0][filters][0][conditionType]=eq"
 ```
 
 Sort by title ascending:
 ```bash
-curl -X GET "http://localhost:8080/rest/V1/dudenkoff/notes/search?\
-searchCriteria[sortOrders][0][field]=title&\
-searchCriteria[sortOrders][0][direction]=ASC"
+curl -g "http://localhost:8080/rest/V1/dudenkoff/notes/search?searchCriteria[sortOrders][0][field]=title&searchCriteria[sortOrders][0][direction]=ASC"
 ```
 
 Pagination - page 1 with 5 items:
 ```bash
-curl -X GET "http://localhost:8080/rest/V1/dudenkoff/notes/search?\
-searchCriteria[pageSize]=5&\
-searchCriteria[currentPage]=1"
+curl -g "http://localhost:8080/rest/V1/dudenkoff/notes/search?searchCriteria[pageSize]=5&searchCriteria[currentPage]=1"
 ```
 
 Complex query - Published notes by Dudenkoff, sorted by date:
 ```bash
-curl -X GET "http://localhost:8080/rest/V1/dudenkoff/notes/search?\
-searchCriteria[filterGroups][0][filters][0][field]=author&\
-searchCriteria[filterGroups][0][filters][0][value]=Dudenkoff&\
-searchCriteria[filterGroups][0][filters][0][conditionType]=eq&\
-searchCriteria[filterGroups][1][filters][0][field]=is_published&\
-searchCriteria[filterGroups][1][filters][0][value]=1&\
-searchCriteria[filterGroups][1][filters][0][conditionType]=eq&\
-searchCriteria[sortOrders][0][field]=created_at&\
-searchCriteria[sortOrders][0][direction]=DESC"
+curl -g "http://localhost:8080/rest/V1/dudenkoff/notes/search?searchCriteria[filterGroups][0][filters][0][field]=author&searchCriteria[filterGroups][0][filters][0][value]=Dudenkoff&searchCriteria[filterGroups][0][filters][0][conditionType]=eq&searchCriteria[filterGroups][1][filters][0][field]=is_published&searchCriteria[filterGroups][1][filters][0][value]=1&searchCriteria[filterGroups][1][filters][0][conditionType]=eq&searchCriteria[sortOrders][0][field]=created_at&searchCriteria[sortOrders][0][direction]=DESC"
 ```
 
 ---
