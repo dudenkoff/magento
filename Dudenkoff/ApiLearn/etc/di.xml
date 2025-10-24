@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Dependency Injection Configuration
+ * 
+ * Maps interfaces to implementations so Magento knows which class to use.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <!-- Map Data Interface to Model -->
+    <preference for="Dudenkoff\ApiLearn\Api\Data\NoteInterface" 
+                type="Dudenkoff\ApiLearn\Model\Note" />
+
+    <!-- Map Search Results Interface -->
+    <preference for="Dudenkoff\ApiLearn\Api\Data\NoteSearchResultsInterface" 
+                type="Dudenkoff\ApiLearn\Model\NoteSearchResults" />
+
+    <!-- Map Repository Interface to Implementation -->
+    <preference for="Dudenkoff\ApiLearn\Api\NoteRepositoryInterface" 
+                type="Dudenkoff\ApiLearn\Model\NoteRepository" />
+
+    <!-- Map Management Interface to Implementation -->
+    <preference for="Dudenkoff\ApiLearn\Api\NoteManagementInterface" 
+                type="Dudenkoff\ApiLearn\Model\NoteManagement" />
+
+</config>
+
+

@@ -1,0 +1,124 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Web API Configuration
+ * 
+ * WHAT IS webapi.xml?
+ * This file maps REST/SOAP endpoints to PHP service classes.
+ * It defines which HTTP methods map to which class methods.
+ * 
+ * KEY CONCEPTS:
+ * 1. Route - The URL path (e.g., /V1/notes/:id)
+ * 2. Service - PHP class and method to execute
+ * 3. Resources - ACL permissions required
+ * 4. HTTP Methods - GET, POST, PUT, DELETE
+ * 
+ * URL STRUCTURE:
+ * REST: http://magento.local/rest/V1/notes
+ * SOAP: http://magento.local/soap?wsdl
+ * 
+ * AUTHENTICATION:
+ * - anonymous - No authentication required
+ * - self - Only for own resources
+ * - Vendor_Module::resource - ACL check
+ */
+-->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+
+    <!-- ====================================================================
+         EXAMPLE 1: GET - Retrieve Single Item
+         
+         REST: GET /V1/dudenkoff/notes/:noteId
+         Returns: NoteInterface object
+         ==================================================================== -->
+    <route url="/V1/dudenkoff/notes/:noteId" method="GET">
+        <service class="Dudenkoff\ApiLearn\Api\NoteRepositoryInterface" method="getById"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+    <!-- ====================================================================
+         EXAMPLE 2: GET - List/Search Items
+         
+         REST: GET /V1/dudenkoff/notes/search?searchCriteria[filter_groups][0][filters][0][field]=title
+         Returns: SearchResultsInterface with items
+         ==================================================================== -->
+    <route url="/V1/dudenkoff/notes/search" method="GET">
+        <service class="Dudenkoff\ApiLearn\Api\NoteRepositoryInterface" method="getList"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+    <!-- ====================================================================
+         EXAMPLE 3: POST - Create New Item
+         
+         REST: POST /V1/dudenkoff/notes
+         Body: {"note": {"title": "...", "content": "..."}}
+         Returns: Created NoteInterface object
+         ==================================================================== -->
+    <route url="/V1/dudenkoff/notes" method="POST">
+        <service class="Dudenkoff\ApiLearn\Api\NoteRepositoryInterface" method="save"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+    <!-- ====================================================================
+         EXAMPLE 4: PUT - Update Existing Item
+         
+         REST: PUT /V1/dudenkoff/notes/:noteId
+         Body: {"note": {"note_id": 1, "title": "...", "content": "..."}}
+         Returns: Updated NoteInterface object
+         ==================================================================== -->
+    <route url="/V1/dudenkoff/notes/:noteId" method="PUT">
+        <service class="Dudenkoff\ApiLearn\Api\NoteRepositoryInterface" method="save"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+    <!-- ====================================================================
+         EXAMPLE 5: DELETE - Remove Item
+         
+         REST: DELETE /V1/dudenkoff/notes/:noteId
+         Returns: true on success
+         ==================================================================== -->
+    <route url="/V1/dudenkoff/notes/:noteId" method="DELETE">
+        <service class="Dudenkoff\ApiLearn\Api\NoteRepositoryInterface" method="deleteById"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+    <!-- ====================================================================
+         EXAMPLE 6: Custom Service Contract Method
+         
+         REST: POST /V1/dudenkoff/notes/publish/:noteId
+         Custom business logic separate from CRUD
+         ==================================================================== -->
+    <route url="/V1/dudenkoff/notes/publish/:noteId" method="POST">
+        <service class="Dudenkoff\ApiLearn\Api\NoteManagementInterface" method="publish"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+
+    <!-- ====================================================================
+         EXAMPLE 7: With ACL Resource (Requires Admin Access)
+         
+         This endpoint requires admin permissions.
+         Replace "anonymous" with ACL resource for real APIs.
+         ==================================================================== -->
+    <route url="/V1/dudenkoff/notes/admin/:noteId" method="GET">
+        <service class="Dudenkoff\ApiLearn\Api\NoteRepositoryInterface" method="getById"/>
+        <resources>
+            <resource ref="Dudenkoff_ApiLearn::note_view"/>
+        </resources>
+    </route>
+
+</routes>
+
+
