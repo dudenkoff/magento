@@ -4,12 +4,6 @@ A comprehensive guide covering ACL (Access Control List), authentication, and RE
 
 **Base URL:** `http://localhost:8080/rest`
 
-> **⚠️ IMPORTANT:** All curl commands with SearchCriteria (containing `[]`) **MUST** use the `-g` or `--globoff` flag!
-> ```bash
-> curl -g "http://localhost:8080/rest/V1/endpoint?searchCriteria[...]"
-> ```
-> Without this flag, curl treats `[]` as glob patterns and will fail with "bad range in URL" error.
-
 ---
 
 ## Table of Contents
@@ -576,38 +570,23 @@ curl -X POST "http://localhost:8080/rest/V1/dudenkoff/notes/admin/publish/8" \
 
 **Greater than:**
 ```bash
-curl -X GET "http://localhost:8080/rest/V1/dudenkoff/notes/search?\
-searchCriteria[filterGroups][0][filters][0][field]=note_id&\
-searchCriteria[filterGroups][0][filters][0][value]=5&\
-searchCriteria[filterGroups][0][filters][0][conditionType]=gt"
+curl -g "http://localhost:8080/rest/V1/dudenkoff/notes/search?searchCriteria[filterGroups][0][filters][0][field]=note_id&searchCriteria[filterGroups][0][filters][0][value]=5&searchCriteria[filterGroups][0][filters][0][conditionType]=gt"
 ```
 
 **Date filter:**
 ```bash
-curl -X GET "http://localhost:8080/rest/V1/dudenkoff/notes/search?\
-searchCriteria[filterGroups][0][filters][0][field]=created_at&\
-searchCriteria[filterGroups][0][filters][0][value]=2025-10-20%2000:00:00&\
-searchCriteria[filterGroups][0][filters][0][conditionType]=gt"
+curl -g "http://localhost:8080/rest/V1/dudenkoff/notes/search?searchCriteria[filterGroups][0][filters][0][field]=created_at&searchCriteria[filterGroups][0][filters][0][value]=2025-10-20%2000:00:00&searchCriteria[filterGroups][0][filters][0][conditionType]=gt"
 ```
 
 **IN filter (multiple IDs):**
 ```bash
-curl -X GET "http://localhost:8080/rest/V1/dudenkoff/notes/search?\
-searchCriteria[filterGroups][0][filters][0][field]=note_id&\
-searchCriteria[filterGroups][0][filters][0][value]=1,3,5&\
-searchCriteria[filterGroups][0][filters][0][conditionType]=in"
+curl -g "http://localhost:8080/rest/V1/dudenkoff/notes/search?searchCriteria[filterGroups][0][filters][0][field]=note_id&searchCriteria[filterGroups][0][filters][0][value]=1,3,5&searchCriteria[filterGroups][0][filters][0][conditionType]=in"
 ```
 
 **Multiple filter groups (OR logic):**
 ```bash
 # (Author = Dudenkoff) OR (is_published = 1)
-curl -X GET "http://localhost:8080/rest/V1/dudenkoff/notes/search?\
-searchCriteria[filterGroups][0][filters][0][field]=author&\
-searchCriteria[filterGroups][0][filters][0][value]=Dudenkoff&\
-searchCriteria[filterGroups][0][filters][0][conditionType]=eq&\
-searchCriteria[filterGroups][1][filters][0][field]=is_published&\
-searchCriteria[filterGroups][1][filters][0][value]=1&\
-searchCriteria[filterGroups][1][filters][0][conditionType]=eq"
+curl -g "http://localhost:8080/rest/V1/dudenkoff/notes/search?searchCriteria[filterGroups][0][filters][0][field]=author&searchCriteria[filterGroups][0][filters][0][value]=Dudenkoff&searchCriteria[filterGroups][0][filters][0][conditionType]=eq&searchCriteria[filterGroups][1][filters][0][field]=is_published&searchCriteria[filterGroups][1][filters][0][value]=1&searchCriteria[filterGroups][1][filters][0][conditionType]=eq"
 ```
 
 ---
@@ -621,7 +600,7 @@ echo "Testing GET single note..."
 curl -s "http://localhost:8080/rest/V1/dudenkoff/notes/1" | jq '.title'
 
 echo "Testing GET all notes..."
-curl -s "http://localhost:8080/rest/V1/dudenkoff/notes/search?searchCriteria=" | jq '.total_count'
+curl -gs "http://localhost:8080/rest/V1/dudenkoff/notes/search?searchCriteria=" | jq '.total_count'
 
 echo "Testing POST create note..."
 curl -s -X POST "http://localhost:8080/rest/V1/dudenkoff/notes" \
@@ -669,12 +648,12 @@ curl -s "http://localhost:8080/rest/V1/dudenkoff/notes/1" | jq '.title'
 
 **Count items:**
 ```bash
-curl -s "http://localhost:8080/rest/V1/dudenkoff/notes/search?searchCriteria=" | jq '.items | length'
+curl -gs "http://localhost:8080/rest/V1/dudenkoff/notes/search?searchCriteria=" | jq '.items | length'
 ```
 
 **Show only titles:**
 ```bash
-curl -s "http://localhost:8080/rest/V1/dudenkoff/notes/search?searchCriteria=" | jq '.items[].title'
+curl -gs "http://localhost:8080/rest/V1/dudenkoff/notes/search?searchCriteria=" | jq '.items[].title'
 ```
 
 **Show HTTP status code:**
@@ -703,7 +682,7 @@ done
 
 **Get all note IDs:**
 ```bash
-curl -s "http://localhost:8080/rest/V1/dudenkoff/notes/search?searchCriteria=" | jq '.items[].note_id'
+curl -gs "http://localhost:8080/rest/V1/dudenkoff/notes/search?searchCriteria=" | jq '.items[].note_id'
 ```
 
 ---
@@ -712,7 +691,7 @@ curl -s "http://localhost:8080/rest/V1/dudenkoff/notes/search?searchCriteria=" |
 
 **Quick API health check:**
 ```bash
-curl -s "http://localhost:8080/rest/V1/dudenkoff/notes/search?searchCriteria=" | jq '.total_count'
+curl -gs "http://localhost:8080/rest/V1/dudenkoff/notes/search?searchCriteria=" | jq '.total_count'
 ```
 
 **Create and get new ID:**
@@ -725,16 +704,12 @@ NEW_ID=$(curl -s -X POST "http://localhost:8080/rest/V1/dudenkoff/notes" \
 
 **Count published notes:**
 ```bash
-curl -s "http://localhost:8080/rest/V1/dudenkoff/notes/search?\
-searchCriteria[filterGroups][0][filters][0][field]=is_published&\
-searchCriteria[filterGroups][0][filters][0][value]=1" | jq '.total_count'
+curl -gs "http://localhost:8080/rest/V1/dudenkoff/notes/search?searchCriteria[filterGroups][0][filters][0][field]=is_published&searchCriteria[filterGroups][0][filters][0][value]=1" | jq '.total_count'
 ```
 
 **Count draft notes:**
 ```bash
-curl -s "http://localhost:8080/rest/V1/dudenkoff/notes/search?\
-searchCriteria[filterGroups][0][filters][0][field]=is_published&\
-searchCriteria[filterGroups][0][filters][0][value]=0" | jq '.total_count'
+curl -gs "http://localhost:8080/rest/V1/dudenkoff/notes/search?searchCriteria[filterGroups][0][filters][0][field]=is_published&searchCriteria[filterGroups][0][filters][0][value]=0" | jq '.total_count'
 ```
 
 ---
