@@ -17,10 +17,13 @@
  * REST: http://magento.local/rest/V1/notes
  * SOAP: http://magento.local/soap?wsdl
  * 
- * AUTHENTICATION:
- * - anonymous - No authentication required
- * - self - Only for own resources
- * - Vendor_Module::resource - ACL check
+ * AUTHENTICATION (resource ref values):
+ * - anonymous - No authentication required (public access)
+ * - self - Authenticated user can only access their own resources
+ *          Used for customer endpoints where customer_id is auto-injected
+ *          Example: /V1/carts/mine - customer can only see their own cart
+ * - Vendor_Module::resource - ACL check (admin/specific permission required)
+ *          Example: Dudenkoff_ApiLearn::note_create - requires specific ACL permission
  */
 -->
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
