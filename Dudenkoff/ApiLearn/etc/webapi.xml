@@ -109,13 +109,61 @@
     <!-- ====================================================================
          EXAMPLE 7: With ACL Resource (Requires Admin Access)
          
-         This endpoint requires admin permissions.
-         Replace "anonymous" with ACL resource for real APIs.
+         These endpoints require specific admin permissions.
+         User must have the ACL resource in their role to access.
+         
+         HOW TO TEST:
+         1. Login to admin
+         2. Go to System > User Roles > Administrators
+         3. Check Role Resources - find "Dudenkoff Notes"
+         4. Enable/disable specific permissions
+         5. Test API with admin token
+         
+         GET ADMIN TOKEN:
+         POST /V1/integration/admin/token
+         Body: {"username": "admin", "password": "password"}
+         
+         USE TOKEN:
+         curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:8080/rest/V1/dudenkoff/notes/admin/1
          ==================================================================== -->
+    
+    <!-- Requires VIEW permission -->
     <route url="/V1/dudenkoff/notes/admin/:noteId" method="GET">
         <service class="Dudenkoff\ApiLearn\Api\NoteRepositoryInterface" method="getById"/>
         <resources>
             <resource ref="Dudenkoff_ApiLearn::note_view"/>
+        </resources>
+    </route>
+    
+    <!-- Requires CREATE permission -->
+    <route url="/V1/dudenkoff/notes/admin" method="POST">
+        <service class="Dudenkoff\ApiLearn\Api\NoteRepositoryInterface" method="save"/>
+        <resources>
+            <resource ref="Dudenkoff_ApiLearn::note_create"/>
+        </resources>
+    </route>
+    
+    <!-- Requires EDIT permission -->
+    <route url="/V1/dudenkoff/notes/admin/:noteId" method="PUT">
+        <service class="Dudenkoff\ApiLearn\Api\NoteRepositoryInterface" method="save"/>
+        <resources>
+            <resource ref="Dudenkoff_ApiLearn::note_edit"/>
+        </resources>
+    </route>
+    
+    <!-- Requires DELETE permission -->
+    <route url="/V1/dudenkoff/notes/admin/:noteId" method="DELETE">
+        <service class="Dudenkoff\ApiLearn\Api\NoteRepositoryInterface" method="deleteById"/>
+        <resources>
+            <resource ref="Dudenkoff_ApiLearn::note_delete"/>
+        </resources>
+    </route>
+    
+    <!-- Requires PUBLISH permission -->
+    <route url="/V1/dudenkoff/notes/admin/publish/:noteId" method="POST">
+        <service class="Dudenkoff\ApiLearn\Api\NoteManagementInterface" method="publish"/>
+        <resources>
+            <resource ref="Dudenkoff_ApiLearn::note_publish"/>
         </resources>
     </route>
 

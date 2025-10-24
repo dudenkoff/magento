@@ -16,13 +16,14 @@ class Note extends AbstractDb
     /**
      * Initialize resource model
      * 
-     * In real module: connects to database table
-     * For learning: simulated
+     * Connects this resource model to the database table.
+     * 
+     * PARAMETERS:
+     * - Table name: dudenkoff_note_table (from db_schema.xml)
+     * - Primary key: note_id
      */
     protected function _construct()
     {
-        // In real module: $this->_init('dudenkoff_note', 'note_id');
-        // For learning purposes, we'll use in-memory storage via repository
         $this->_init('dudenkoff_note_table', 'note_id');
     }
 }

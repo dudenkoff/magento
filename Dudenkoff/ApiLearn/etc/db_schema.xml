@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Database Schema Declaration
+ * 
+ * WHAT IS db_schema.xml?
+ * Declarative schema for creating/modifying database tables.
+ * Replaces old InstallSchema/UpgradeSchema scripts.
+ * 
+ * KEY CONCEPTS:
+ * 1. Table - Database table definition
+ * 2. Column - Table columns with types and constraints
+ * 3. Constraint - Primary keys, foreign keys, unique
+ * 4. Index - Database indexes for performance
+ * 
+ * COLUMN TYPES:
+ * - int, smallint, bigint - Integers
+ * - varchar, text - Strings
+ * - decimal - Decimals
+ * - timestamp - Dates/times
+ * - boolean - True/false (stored as tinyint)
+ * 
+ * BENEFITS:
+ * - Declarative (describe desired state)
+ * - Rollback support
+ * - Automatic migration
+ * - No PHP upgrade scripts
+ */
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    
+    <!-- 
+        Table: dudenkoff_note_table
+        Purpose: Store notes for the API learning module
+    -->
+    <table name="dudenkoff_note_table" resource="default" engine="innodb" comment="Dudenkoff Notes Table">
+        
+        <!-- Primary Key -->
+        <column xsi:type="int" 
+                name="note_id" 
+                unsigned="true" 
+                nullable="false" 
+                identity="true" 
+                comment="Note ID"/>
+        
+        <!-- Title -->
+        <column xsi:type="varchar" 
+                name="title" 
+                nullable="false" 
+                length="255" 
+                comment="Note Title"/>
+        
+        <!-- Content -->
+        <column xsi:type="text" 
+                name="content" 
+                nullable="true" 
+                comment="Note Content"/>
+        
+        <!-- Author -->
+        <column xsi:type="varchar" 
+                name="author" 
+                nullable="true" 
+                length="100" 
+                comment="Note Author"/>
+        
+        <!-- Published Status -->
+        <column xsi:type="boolean" 
+                name="is_published" 
+                nullable="false" 
+                default="false" 
+                comment="Is Published"/>
+        
+        <!-- Created At -->
+        <column xsi:type="timestamp" 
+                name="created_at" 
+                nullable="false" 
+                default="CURRENT_TIMESTAMP" 
+                on_update="false" 
+                comment="Created At"/>
+        
+        <!-- Updated At -->
+        <column xsi:type="timestamp" 
+                name="updated_at" 
+                nullable="false" 
+                default="CURRENT_TIMESTAMP" 
+                on_update="true" 
+                comment="Updated At"/>
+        
+        <!-- Primary Key Constraint -->
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="note_id"/>
+        </constraint>
+        
+        <!-- Indexes for Performance -->
+        <!-- Index on title for search -->
+        <index referenceId="DUDENKOFF_NOTE_TITLE" indexType="btree">
+            <column name="title"/>
+        </index>
+        
+        <!-- Index on is_published for filtering -->
+        <index referenceId="DUDENKOFF_NOTE_IS_PUBLISHED" indexType="btree">
+            <column name="is_published"/>
+        </index>
+        
+        <!-- Index on author -->
+        <index referenceId="DUDENKOFF_NOTE_AUTHOR" indexType="btree">
+            <column name="author"/>
+        </index>
+        
+        <!-- Composite index for common queries -->
+        <index referenceId="DUDENKOFF_NOTE_PUBLISHED_CREATED" indexType="btree">
+            <column name="is_published"/>
+            <column name="created_at"/>
+        </index>
+        
+    </table>
+    
+</schema>
+

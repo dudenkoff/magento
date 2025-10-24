@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * ACL (Access Control List) Configuration
+ * 
+ * WHAT IS ACL?
+ * ACL defines permission resources for:
+ * - Admin panel access (menu items, pages)
+ * - API endpoint access (REST/SOAP)
+ * - Backend functionality
+ * 
+ * KEY CONCEPTS:
+ * 1. Resources - Permission identifiers (e.g., Vendor_Module::resource_name)
+ * 2. Hierarchy - Resources can be nested (parent/child)
+ * 3. Admin Roles - Assign resources to user roles
+ * 4. API Security - Protect endpoints with ACL
+ * 
+ * HOW IT WORKS:
+ * 1. Define resources in acl.xml
+ * 2. Reference in webapi.xml for API endpoints
+ * 3. Admin assigns resources to roles
+ * 4. Users get permissions based on their role
+ * 
+ * RESOURCE NAMING CONVENTION:
+ * Vendor_Module::resource_name
+ * Example: Dudenkoff_ApiLearn::note_view
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <!-- 
+                Admin resources 
+                These appear in Admin > System > User Roles > Role Resources
+            -->
+            <resource id="Magento_Backend::admin">
+                
+                <!-- Top-level resource for this module -->
+                <resource id="Dudenkoff_ApiLearn::notes" title="Dudenkoff Notes" sortOrder="100">
+                    
+                    <!-- View permission -->
+                    <resource id="Dudenkoff_ApiLearn::note_view" 
+                              title="View Notes" 
+                              sortOrder="10" />
+                    
+                    <!-- Create permission -->
+                    <resource id="Dudenkoff_ApiLearn::note_create" 
+                              title="Create Notes" 
+                              sortOrder="20" />
+                    
+                    <!-- Edit permission -->
+                    <resource id="Dudenkoff_ApiLearn::note_edit" 
+                              title="Edit Notes" 
+                              sortOrder="30" />
+                    
+                    <!-- Delete permission -->
+                    <resource id="Dudenkoff_ApiLearn::note_delete" 
+                              title="Delete Notes" 
+                              sortOrder="40" />
+                    
+                    <!-- Publish permission (custom action) -->
+                    <resource id="Dudenkoff_ApiLearn::note_publish" 
+                              title="Publish Notes" 
+                              sortOrder="50" />
+                    
+                </resource>
+                
+            </resource>
+        </resources>
+    </acl>
+</config>
+
