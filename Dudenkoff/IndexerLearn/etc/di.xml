@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Dudenkoff. All rights reserved.
+ * Dependency Injection configuration
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    
+    <!-- Register CLI Commands -->
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="dudenkoff_indexer_generate_data" xsi:type="object">Dudenkoff\IndexerLearn\Console\Command\GenerateDataCommand</item>
+                <item name="dudenkoff_indexer_show_stats" xsi:type="object">Dudenkoff\IndexerLearn\Console\Command\ShowStatsCommand</item>
+                <item name="dudenkoff_indexer_clear_data" xsi:type="object">Dudenkoff\IndexerLearn\Console\Command\ClearDataCommand</item>
+            </argument>
+        </arguments>
+    </type>
+    
+</config>
+

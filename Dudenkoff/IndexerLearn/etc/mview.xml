@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Dudenkoff. All rights reserved.
+ * Materialized View (mview) configuration
+ * 
+ * This configures AUTOMATIC index updates when data changes:
+ * - view_id: Must match the view_id in indexer.xml
+ * - class: The action class (same as in indexer.xml)
+ * - group: Indexer group for batch operations
+ * - subscriptions: What database tables to watch for changes
+ * 
+ * When a row in dudenkoff_product_stats changes, Magento:
+ * 1. Logs the change in dudenkoff_product_stats_cl (changelog table)
+ * 2. Marks the indexer as "invalid" 
+ * 3. On next cron run (or manual reindex), processes only changed IDs
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Mview/etc/mview.xsd">
+    <view id="dudenkoff_product_stats" 
+          class="Dudenkoff\IndexerLearn\Model\Indexer\ProductStats" 
+          group="indexer">
+        <subscriptions>
+            <!-- Watch the source table for changes -->
+            <table name="dudenkoff_product_stats" entity_column="entity_id" />
+        </subscriptions>
+    </view>
+</config>
+

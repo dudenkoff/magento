@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Dudenkoff. All rights reserved.
+ * Database schema for IndexerLearn module
+ * 
+ * This defines two tables:
+ * 1. dudenkoff_product_stats - Source data table (what we're indexing FROM)
+ * 2. dudenkoff_product_stats_idx - Index table (what we're indexing TO)
+ */
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    
+    <!-- Source table: Contains product statistics that need to be indexed -->
+    <table name="dudenkoff_product_stats" resource="default" engine="innodb" comment="Product Statistics Source Table">
+        <column xsi:type="int" name="entity_id" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
+        <column xsi:type="int" name="product_id" unsigned="true" nullable="false" comment="Product ID"/>
+        <column xsi:type="int" name="view_count" unsigned="true" nullable="false" default="0" comment="Number of views"/>
+        <column xsi:type="int" name="purchase_count" unsigned="true" nullable="false" default="0" comment="Number of purchases"/>
+        <column xsi:type="decimal" name="revenue" precision="12" scale="4" nullable="false" default="0" comment="Total Revenue"/>
+        <column xsi:type="timestamp" name="last_updated" on_update="true" nullable="false" default="CURRENT_TIMESTAMP" comment="Last Updated Time"/>
+        
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="DUDENKOFF_PRODUCT_STATS_PRODUCT_ID">
+            <column name="product_id"/>
+        </constraint>
+        
+        <index referenceId="DUDENKOFF_PRODUCT_STATS_LAST_UPDATED" indexType="btree">
+            <column name="last_updated"/>
+        </index>
+    </table>
+    
+    <!-- Index table: Contains pre-calculated/aggregated data for fast retrieval -->
+    <table name="dudenkoff_product_stats_idx" resource="default" engine="innodb" comment="Product Statistics Index Table">
+        <column xsi:type="int" name="product_id" unsigned="true" nullable="false" comment="Product ID"/>
+        <column xsi:type="int" name="view_count" unsigned="true" nullable="false" default="0" comment="Indexed View Count"/>
+        <column xsi:type="int" name="purchase_count" unsigned="true" nullable="false" default="0" comment="Indexed Purchase Count"/>
+        <column xsi:type="decimal" name="revenue" precision="12" scale="4" nullable="false" default="0" comment="Indexed Revenue"/>
+        <column xsi:type="decimal" name="conversion_rate" precision="5" scale="2" nullable="false" default="0" comment="Calculated Conversion Rate (%)"/>
+        <column xsi:type="decimal" name="average_order_value" precision="12" scale="4" nullable="false" default="0" comment="Calculated AOV"/>
+        <column xsi:type="varchar" name="popularity_tier" nullable="false" length="20" default="low" comment="Popularity Classification"/>
+        <column xsi:type="timestamp" name="indexed_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="When Indexed"/>
+        
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="product_id"/>
+        </constraint>
+        
+        <index referenceId="DUDENKOFF_PRODUCT_STATS_IDX_POPULARITY" indexType="btree">
+            <column name="popularity_tier"/>
+        </index>
+        <index referenceId="DUDENKOFF_PRODUCT_STATS_IDX_CONVERSION" indexType="btree">
+            <column name="conversion_rate"/>
+        </index>
+    </table>
+</schema>
+

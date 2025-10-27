@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Dudenkoff. All rights reserved.
+ * Indexer configuration
+ * 
+ * This file defines our custom indexer and its properties:
+ * - id: Unique identifier for the indexer
+ * - view_id: Links to mview.xml for tracking changes
+ * - class: The action class that performs the indexing
+ * - title/description: What appears in admin and CLI
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Indexer/etc/indexer.xsd">
+    <indexer id="dudenkoff_product_stats" 
+             view_id="dudenkoff_product_stats" 
+             class="Dudenkoff\IndexerLearn\Model\Indexer\ProductStats"
+             primary="product_id">
+        <title translate="true">Product Statistics Indexer (Learning)</title>
+        <description translate="true">Aggregates product statistics and calculates derived metrics for fast retrieval</description>
+    </indexer>
+</config>
+

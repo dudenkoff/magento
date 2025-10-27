@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Dudenkoff. All rights reserved.
+ * Events configuration
+ * 
+ * Observers demonstrate how to manually invalidate indexes when needed.
+ * While mview automatically tracks database changes, sometimes you need
+ * manual control for complex business logic.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    
+    <!-- Example: Invalidate index when specific business logic occurs -->
+    <event name="dudenkoff_stats_updated">
+        <observer name="dudenkoff_invalidate_stats_index" 
+                  instance="Dudenkoff\IndexerLearn\Observer\InvalidateStatsIndexObserver" />
+    </event>
+    
+</config>
+
