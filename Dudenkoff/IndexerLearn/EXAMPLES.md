@@ -145,9 +145,11 @@ Indexes trade storage space and reindex time for query speed.
 
 ---
 
-## Example 3: Testing Realtime Mode
+## Example 3: Testing Realtime Mode - THE WRONG WAY ⚠️
 
-**Goal:** See how "Update on Save" mode works.
+**Goal:** Demonstrate that direct database changes DON'T trigger realtime reindexing.
+
+**⚠️ IMPORTANT:** This example shows a **common mistake**. Direct DB updates don't work in realtime mode!
 
 ### Step 1: Set to realtime mode
 
@@ -166,7 +168,7 @@ SELECT * FROM dudenkoff_product_stats_idx WHERE product_id = 1001;
 
 Note the conversion_rate value.
 
-### Step 3: Update source data
+### Step 3: Update source data DIRECTLY in database (bypassing Magento)
 
 ```bash
 mysql -u root -p magento -e "
@@ -187,26 +189,122 @@ SELECT * FROM dudenkoff_product_stats_idx WHERE product_id = 1001;
 
 ### 🔍 What Happened?
 
-The index updated IMMEDIATELY when you changed the source data.
+**The index DID NOT update!** ❌
+
+The conversion_rate is still the old value, even though we're in realtime mode.
 
 **Behind the scenes:**
-1. Your UPDATE triggered database trigger
-2. Changelog entry created
-3. Indexer detected change (realtime mode)
-4. Indexer IMMEDIATELY reindexed product 1001
-5. Index table updated
+1. ✅ Your UPDATE triggered database trigger
+2. ✅ Changelog entry was created
+3. ❌ But NO application event fired
+4. ❌ Realtime reindex was NOT triggered
+5. ❌ Index table is now STALE
 
-### Step 5: Check indexer status
+### Step 5: Check the changelog
+
+```bash
+mysql -u root -p magento -e "
+SELECT * FROM dudenkoff_product_stats_cl;
+"
+```
+
+You'll see an entry! The change was **logged** but not **processed immediately**.
+
+### Step 6: Check indexer status
 
 ```bash
 bin/magento indexer:status dudenkoff_product_stats
 ```
 
-Should still show "Valid" (never became invalid).
+May show "Valid" (incorrect!) or "Invalid" depending on how Magento detected the change.
+
+### Step 7: Manually trigger reindex to fix
+
+```bash
+bin/magento indexer:reindex dudenkoff_product_stats
+```
+
+Now check the index again - it's finally updated!
 
 ### 💡 Key Takeaway
 
-Realtime mode keeps index always up-to-date but adds overhead to write operations.
+**Realtime mode ONLY works with Magento's ORM.** Direct database changes bypass application events, so no immediate reindexing happens.
+
+**The lesson:** Never rely on direct DB updates to trigger realtime indexing!
+
+---
+
+## Example 3a: Testing Realtime Mode - THE RIGHT WAY ✅
+
+**Goal:** Demonstrate that using Magento's event system triggers realtime reindexing.
+
+**Note:** Since this module's data table (`dudenkoff_product_stats`) doesn't have a corresponding Magento model with save events, we need to either:
+1. Create a custom module that dispatches events on save
+2. Manually trigger the indexer after changes
+3. Use schedule mode instead
+
+**The Right Approach for Custom Tables:**
+
+### Option 1: Dispatch Event After Data Change
+
+```php
+use Magento\Framework\Event\ManagerInterface;
+
+class YourDataUpdater
+{
+    private $eventManager;
+    
+    public function __construct(ManagerInterface $eventManager) {
+        $this->eventManager = $eventManager;
+    }
+    
+    public function updateProductStats($productId, $data) {
+        // Update the data
+        $connection->update('dudenkoff_product_stats', $data, 
+            ['product_id = ?' => $productId]
+        );
+        
+        // Dispatch event for indexer
+        $this->eventManager->dispatch('dudenkoff_stats_updated', [
+            'product_ids' => [$productId]
+        ]);
+    }
+}
+```
+
+### Option 2: Manually Trigger Reindex
+
+```php
+use Magento\Framework\Indexer\IndexerRegistry;
+
+class YourDataUpdater
+{
+    private $indexerRegistry;
+    
+    public function updateProductStats($productId, $data) {
+        // Update the data
+        $connection->update('dudenkoff_product_stats', $data, 
+            ['product_id = ?' => $productId]
+        );
+        
+        // If in realtime mode, manually trigger reindex
+        $indexer = $this->indexerRegistry->get('dudenkoff_product_stats');
+        if (!$indexer->isScheduled()) {
+            $indexer->reindexList([$productId]);
+        }
+    }
+}
+```
+
+### 💡 Key Takeaway
+
+For realtime mode to work automatically:
+- Use Magento's built-in models (Product, Category, etc.) - they fire events
+- OR dispatch custom events after data changes
+- OR manually trigger reindexing
+- OR use schedule mode (recommended for custom data)
+
+**For this learning module:** Schedule mode is more appropriate since we're using custom tables without built-in Magento models.
 
 ---
 
@@ -732,4 +830,5 @@ Try these advanced experiments:
 5. **Index monitoring**: Build a dashboard showing indexer health
 
 Happy learning! 🎉
+
 

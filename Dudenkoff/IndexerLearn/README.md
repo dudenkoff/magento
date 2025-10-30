@@ -130,14 +130,16 @@ ORDER BY conversion_rate DESC;
 ### 2. Indexer Modes
 
 **Update on Save (Realtime)**
-- ✅ Always up-to-date
+- ✅ Always up-to-date (when using Magento ORM)
 - ❌ Slower saves
+- ⚠️ **Requires application events** - doesn't work with direct DB changes
 - 💡 Use for: Critical data that must be instantly accurate
 
 **Update on Schedule**
 - ✅ Fast saves
+- ✅ Works with ANY database change (direct or via ORM)
 - ❌ May be stale until cron runs
-- 💡 Use for: Analytics, reports, non-critical data
+- 💡 Use for: Analytics, reports, non-critical data, bulk operations
 
 ### 3. How Mview Works
 
@@ -251,4 +253,5 @@ Copyright © Dudenkoff. All rights reserved.
 - [Official Magento Indexing Guide](https://developer.adobe.com/commerce/php/development/components/indexing/)
 - [Mview Documentation](https://developer.adobe.com/commerce/php/development/components/indexing/#mview)
 - Other Dudenkoff learning modules: `DILearn`, `ObserverLearn`, `ApiLearn`
+
 

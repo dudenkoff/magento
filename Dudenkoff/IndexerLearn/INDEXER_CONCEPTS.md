@@ -6,12 +6,13 @@
 2. [Why Magento Uses Indexing](#why-magento-uses-indexing)
 3. [Indexer Architecture](#indexer-architecture)
 4. [Indexer Modes](#indexer-modes)
-5. [Materialized Views (Mview)](#materialized-views-mview)
-6. [Changelog Mechanism](#changelog-mechanism)
-7. [Indexer States](#indexer-states)
-8. [Full vs Partial Reindex](#full-vs-partial-reindex)
-9. [Performance Considerations](#performance-considerations)
-10. [Advanced Topics](#advanced-topics)
+5. [🚨 Common Misconception: Direct Database Changes](#-common-misconception-direct-database-changes)
+6. [Materialized Views (Mview)](#materialized-views-mview)
+7. [Changelog Mechanism](#changelog-mechanism)
+8. [Indexer States](#indexer-states)
+9. [Full vs Partial Reindex](#full-vs-partial-reindex)
+10. [Performance Considerations](#performance-considerations)
+11. [Advanced Topics](#advanced-topics)
 
 ---
 
@@ -166,26 +167,52 @@ bin/magento indexer:set-mode realtime dudenkoff_product_stats
 
 **How it works:**
 ```
-1. Admin saves product
-2. Product data changes
-3. Indexer IMMEDIATELY runs (same request)
-4. Index updated
-5. Save completes
+1. Admin saves product (via Magento ORM/Models)
+2. Product model fires save event (catalog_product_save_after)
+3. Mview system detects event
+4. Indexer IMMEDIATELY runs (same request)
+5. Index updated
+6. Save completes
 ```
 
+**⚠️ CRITICAL: Realtime Mode Limitation**
+
+Realtime mode **ONLY works when you use Magento's ORM** (models). It relies on **application-level events** to trigger immediate reindexing.
+
+```php
+// ✅ WORKS - Triggers realtime reindex
+$product->setName('New Name')->save();
+
+// ❌ DOESN'T WORK - Bypasses events
+$connection->update('catalog_product_entity', 
+    ['name' => 'New Name'], 
+    ['entity_id = ?' => 1]
+);
+```
+
+**What happens with direct DB changes:**
+1. ✅ Database trigger logs change to changelog table
+2. ❌ But no application event fires
+3. ❌ So no immediate reindex happens
+4. ❌ Index becomes stale until manual reindex
+
+**Solution:** Always use Magento's models, or manually trigger reindex after direct DB changes.
+
 **Pros:**
-- ✅ Index always 100% up-to-date
+- ✅ Index always 100% up-to-date (when using Magento ORM)
 - ✅ No delay between change and reflection
 
 **Cons:**
 - ❌ Slower save operations
 - ❌ May timeout on bulk updates
 - ❌ Higher server load during saves
+- ❌ **Doesn't work with direct database changes**
 
 **Use when:**
 - Real-time accuracy is critical
 - Low traffic stores
 - Small catalogs (<10k products)
+- All changes go through Magento's ORM
 
 ### 2. Update on Schedule (Deferred Mode)
 
@@ -225,6 +252,139 @@ bin/magento indexer:set-mode schedule dudenkoff_product_stats
 indexer_update_all_views  # Processes all scheduled indexers
 indexer_clean_all_changelogs  # Cleans processed changelog entries
 ```
+
+---
+
+## 🚨 Common Misconception: Direct Database Changes
+
+### The Problem
+
+Many developers assume that in **realtime mode**, any database change will trigger immediate reindexing because mview uses database triggers. **This is WRONG.**
+
+### The Reality
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    TWO SEPARATE SYSTEMS                         │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  1. CHANGE LOGGING (Database Triggers)                         │
+│     - Always runs (schedule or realtime mode)                  │
+│     - Triggered by ANY database change                         │
+│     - Logs to changelog table                                  │
+│     ✅ Works with direct DB changes                            │
+│                                                                 │
+│  2. IMMEDIATE REINDEXING (Application Events)                  │
+│     - Only in realtime mode                                    │
+│     - Triggered by Magento ORM save/delete operations          │
+│     - Reads changelog and reindexes immediately                │
+│     ❌ Does NOT work with direct DB changes                    │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Example Scenarios
+
+#### Scenario 1: Using Magento Models (Realtime Mode)
+
+```php
+// Using Magento's ORM
+$product = $productRepository->getById(1);
+$product->setPrice(99.99);
+$productRepository->save($product);
+
+// What happens:
+// 1. ✅ Model fires 'catalog_product_save_after' event
+// 2. ✅ Database trigger logs change to changelog
+// 3. ✅ Mview event observer sees the event
+// 4. ✅ Calls $indexer->executeList([1]) immediately
+// 5. ✅ Index updated in same request
+```
+
+#### Scenario 2: Direct Database Update (Realtime Mode)
+
+```php
+// Direct database update
+$connection->update(
+    'catalog_product_entity_decimal',
+    ['value' => 99.99],
+    ['entity_id = ?' => 1, 'attribute_id = ?' => $priceAttributeId]
+);
+
+// What happens:
+// 1. ✅ Database trigger logs change to changelog
+// 2. ❌ NO application event fires
+// 3. ❌ NO immediate reindex
+// 4. ❌ Index is now stale
+// 5. ❌ Frontend shows old price until manual reindex
+```
+
+#### Scenario 3: Direct Database Update (Schedule Mode)
+
+```php
+// Direct database update
+$connection->update(
+    'catalog_product_entity_decimal',
+    ['value' => 99.99],
+    ['entity_id = ?' => 1]
+);
+
+// What happens:
+// 1. ✅ Database trigger logs change to changelog
+// 2. ⏳ Indexer marked as "Invalid"
+// 3. ⏳ Wait for cron (indexer_update_all_views)
+// 4. ✅ Cron reads changelog and reindexes product 1
+// 5. ✅ Eventually consistent
+```
+
+### Solutions
+
+#### Option 1: Always Use Magento's ORM (Recommended)
+
+```php
+// ✅ CORRECT
+$product = $productRepository->getById(1);
+$product->setPrice(99.99);
+$productRepository->save($product);
+```
+
+#### Option 2: Manually Trigger Reindex After Direct DB Changes
+
+```php
+// Direct DB update
+$connection->update('catalog_product_entity_decimal', 
+    ['value' => 99.99], 
+    ['entity_id = ?' => 1]
+);
+
+// Manually trigger reindex
+$indexer = $indexerRegistry->get('catalog_product_price');
+$indexer->executeList([1]); // Reindex only product 1
+```
+
+#### Option 3: Use Schedule Mode for Bulk Operations
+
+If you're doing bulk imports/updates, use schedule mode:
+
+```bash
+# Switch to schedule mode for bulk operation
+bin/magento indexer:set-mode schedule catalog_product_price
+
+# Do your bulk direct DB updates
+# ...changes logged to changelog automatically...
+
+# Cron will process them
+# OR manually trigger: bin/magento indexer:reindex catalog_product_price
+```
+
+### Summary Table
+
+| Change Method | Realtime Mode | Schedule Mode |
+|---------------|---------------|---------------|
+| **Magento ORM** | ✅ Immediate reindex | ✅ Logged, processed by cron |
+| **Direct DB Update** | ❌ Only logged, no reindex | ✅ Logged, processed by cron |
+| **Mass Action** | ✅ Immediate but slow | ✅ Fast, processed by cron |
+| **Import/Export** | ✅ Immediate but may timeout | ✅ Recommended |
 
 ---
 
@@ -287,7 +447,24 @@ Step 5: Indexer marked as "Valid"
 - ✅ **Automatic tracking**: No manual code needed
 - ✅ **Efficient**: Only tracks IDs, not full data
 - ✅ **Batch processing**: Multiple changes grouped
-- ✅ **Database-level**: Can't be bypassed by code
+- ✅ **Database-level tracking**: Triggers log ALL changes (even direct DB updates)
+
+### ⚠️ Important Distinction
+
+**What mview DOES:**
+- ✅ Database triggers always log changes to changelog table
+- ✅ Works even with direct database modifications
+- ✅ Tracks WHAT changed and WHEN
+
+**What mview DOESN'T DO (in realtime mode):**
+- ❌ Triggers don't cause immediate reindexing
+- ❌ Immediate reindex requires application events
+- ❌ Direct DB changes bypass application events
+- ❌ Result: Change logged, but not immediately reindexed
+
+**Bottom line:** 
+- In **schedule mode**: Direct DB changes work fine (cron will process changelog)
+- In **realtime mode**: Direct DB changes break immediate reindexing
 
 ---
 
@@ -554,12 +731,13 @@ Advanced: Use external search engines (Elasticsearch, Algolia) as indexes.
 | **Index Table** | Pre-calculated, optimized data |
 | **Mview** | Automatic change tracking system |
 | **Changelog** | Log of which rows changed |
-| **Realtime Mode** | Reindex immediately on save |
+| **Realtime Mode** | Reindex immediately on save (via Magento ORM only) |
 | **Schedule Mode** | Reindex later via cron |
 | **Full Reindex** | Rebuild entire index |
 | **Partial Reindex** | Update only changed rows |
 | **Valid State** | Index is current |
 | **Invalid State** | Index needs update |
+| **Direct DB Changes** | ⚠️ Break realtime mode; use schedule mode or manual reindex |
 
 ---
 
@@ -573,4 +751,5 @@ Advanced: Use external search engines (Elasticsearch, Algolia) as indexes.
 ---
 
 *For questions or improvements, contribute to this educational module!*
+
 

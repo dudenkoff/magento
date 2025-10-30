@@ -75,3 +75,4 @@ class ProductStatsIndex extends AbstractDb
     }
 }
 
+

@@ -183,9 +183,10 @@ echo $stats['conversion_rate']; // Already calculated!
 
 #### Realtime Mode (Update on Save)
 ```
-Data Change → Index Updates IMMEDIATELY → Always Current
-✅ Always accurate
+Data Change (via Magento ORM) → Event Fired → Index Updates IMMEDIATELY → Always Current
+✅ Always accurate (when using ORM)
 ❌ Slower writes
+❌ Doesn't work with direct DB changes
 ```
 
 #### Schedule Mode (Update on Schedule)
@@ -430,4 +431,5 @@ You now have a fully functional, production-ready indexer learning module with:
 *Version: 1.0.0*  
 *Author: Dudenkoff*  
 *License: All rights reserved*
+
 
