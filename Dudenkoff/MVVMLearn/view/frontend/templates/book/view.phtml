@@ -1,0 +1,57 @@
+<?php
+/**
+ * @var $block \Dudenkoff\MVVMLearn\Block\BookView
+ */
+$book = $block->getBook();
+if (!$book) {
+    echo '<p>Book not found.</p>';
+    return;
+}
+?>
+<div class="book-view">
+    <div class="book-back">
+        <a href="<?= $block->escapeUrl($block->getBackUrl()) ?>">&larr; Back to Book List</a>
+    </div>
+    
+    <div class="book-details" style="border: 1px solid #ddd; padding: 30px; margin: 20px 0; border-radius: 5px;">
+        <h1><?= $block->escapeHtml($book->getTitle()) ?></h1>
+        
+        <div class="book-info" style="margin: 20px 0;">
+            <p><strong>Author:</strong> <?= $block->escapeHtml($book->getAuthor()) ?></p>
+            <p><strong>ISBN:</strong> <?= $block->escapeHtml($book->getIsbn()) ?></p>
+            <p><strong>Price:</strong> <span style="font-size: 24px; color: #1979c3; font-weight: bold;"><?= $block->escapeHtml($block->formatPrice($book->getPrice())) ?></span></p>
+            <p><strong>Status:</strong> <span style="font-weight: bold;"><?= $block->escapeHtml($block->getStockStatusLabel()) ?></span></p>
+        </div>
+        
+        <?php if ($book->getDescription()): ?>
+            <div class="book-description" style="margin: 20px 0; padding: 20px; background: #f5f5f5; border-radius: 3px;">
+                <h3>Description</h3>
+                <p><?= $block->escapeHtml($book->getDescription()) ?></p>
+            </div>
+        <?php endif; ?>
+        
+        <div class="book-meta" style="margin: 20px 0; padding: 20px; background: #f9f9f9; border-radius: 3px;">
+            <p><small><strong>Created:</strong> <?= $block->escapeHtml($book->getCreatedAt()) ?></small></p>
+            <p><small><strong>Last Updated:</strong> <?= $block->escapeHtml($book->getUpdatedAt()) ?></small></p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .book-view {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+    }
+    .book-back {
+        margin-bottom: 20px;
+    }
+    .book-back a {
+        color: #1979c3;
+        text-decoration: none;
+    }
+    .book-back a:hover {
+        text-decoration: underline;
+    }
+</style>
+

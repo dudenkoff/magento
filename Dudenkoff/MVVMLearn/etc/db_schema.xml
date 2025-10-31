@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="dudenkoff_book" resource="default" engine="innodb" comment="Book Table - Example Entity">
+        <column xsi:type="int" name="book_id" unsigned="true" nullable="false" identity="true" comment="Book ID"/>
+        <column xsi:type="varchar" name="title" nullable="false" length="255" comment="Book Title"/>
+        <column xsi:type="varchar" name="author" nullable="false" length="255" comment="Author"/>
+        <column xsi:type="varchar" name="isbn" nullable="true" length="20" comment="ISBN"/>
+        <column xsi:type="text" name="description" nullable="true" comment="Description"/>
+        <column xsi:type="decimal" name="price" scale="2" precision="10" unsigned="false" nullable="false" default="0" comment="Price"/>
+        <column xsi:type="int" name="stock_qty" unsigned="true" nullable="false" default="0" comment="Stock Quantity"/>
+        <column xsi:type="smallint" name="status" unsigned="true" nullable="false" default="1" comment="Status (1=Enabled, 0=Disabled)"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>
+        <column xsi:type="timestamp" name="updated_at" on_update="true" nullable="false" default="CURRENT_TIMESTAMP" comment="Updated At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="book_id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="DUDENKOFF_BOOK_ISBN">
+            <column name="isbn"/>
+        </constraint>
+        <index referenceId="DUDENKOFF_BOOK_TITLE" indexType="btree">
+            <column name="title"/>
+        </index>
+        <index referenceId="DUDENKOFF_BOOK_AUTHOR" indexType="btree">
+            <column name="author"/>
+        </index>
+    </table>
+</schema>
+

@@ -1,0 +1,53 @@
+<?php
+/**
+ * @var $block \Dudenkoff\MVVMLearn\Block\BookList
+ */
+?>
+<div class="book-list">
+    <h1>Book Store</h1>
+    <p>Example demonstrating Magento's MVC/MVVM pattern</p>
+    
+    <div class="books-grid">
+        <?php foreach ($block->getBookCollection() as $book): ?>
+            <div class="book-item" style="border: 1px solid #ddd; padding: 20px; margin: 10px 0; border-radius: 5px;">
+                <h2>
+                    <a href="<?= $block->escapeUrl($block->getBookUrl($book->getBookId())) ?>">
+                        <?= $block->escapeHtml($book->getTitle()) ?>
+                    </a>
+                </h2>
+                
+                <p><strong>Author:</strong> <?= $block->escapeHtml($book->getAuthor()) ?></p>
+                <p><strong>ISBN:</strong> <?= $block->escapeHtml($book->getIsbn()) ?></p>
+                <p><strong>Price:</strong> <?= $block->escapeHtml($block->formatPrice($book->getPrice())) ?></p>
+                
+                <p class="stock-status">
+                    <strong>Availability:</strong>
+                    <?php if ($block->isInStock($book)): ?>
+                        <span style="color: green;">In Stock (<?= $block->escapeHtml($book->getStockQty()) ?>)</span>
+                    <?php else: ?>
+                        <span style="color: red;">Out of Stock</span>
+                    <?php endif; ?>
+                </p>
+                
+                <a href="<?= $block->escapeUrl($block->getBookUrl($book->getBookId())) ?>" 
+                   class="action primary" 
+                   style="display: inline-block; padding: 10px 20px; background: #1979c3; color: white; text-decoration: none; border-radius: 3px;">
+                    View Details
+                </a>
+            </div>
+        <?php endforeach; ?>
+    </div>
+</div>
+
+<style>
+    .book-list {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 20px;
+    }
+    .books-grid {
+        display: grid;
+        gap: 20px;
+    }
+</style>
+
