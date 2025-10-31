@@ -29,13 +29,20 @@ class ProductStats implements IndexerActionInterface, MviewActionInterface
     private $resourceConnection;
 
     /**
-     * @var LoggerInterface
+     * @var LoggerInterface Logger for cron.log (Magento core style)
      */
     private $logger;
 
     /**
+     * Constructor
+     * 
+     * MAGENTO CORE PATTERN:
+     * - Inject a logger configured to write to cron.log via di.xml
+     * - The logger is a virtual type using Monolog with custom handler
+     * - This is exactly how core modules (Indexer, Cron) handle logging
+     * 
      * @param ResourceConnection $resourceConnection
-     * @param LoggerInterface $logger
+     * @param LoggerInterface $logger Logger configured for cron.log in di.xml
      */
     public function __construct(
         ResourceConnection $resourceConnection,
@@ -98,7 +105,7 @@ class ProductStats implements IndexerActionInterface, MviewActionInterface
 
             $this->logger->info('[IndexerLearn] FULL reindex completed successfully');
         } catch (\Exception $e) {
-            $this->logger->error('[IndexerLearn] Full reindex failed: ' . $e->getMessage());
+            $this->logger->error('[IndexerLearn] FULL reindex failed: ' . $e->getMessage());
             throw $e;
         }
     }
@@ -109,12 +116,7 @@ class ProductStats implements IndexerActionInterface, MviewActionInterface
      * This is called when the mview system detects changes.
      * It only reindexes the CHANGED rows, making it much faster than full reindex.
      * 
-     * When "Update on Schedule" mode is enabled, Magento:
-     * 1. Tracks changes in changelog table (dudenkoff_product_stats_cl)
-     * 2. Periodically calls this method with list of changed IDs
-     * 3. Only updates those specific rows in the index
-     *
-     * @param int[] $ids
+     * When "Update on Schedule" mode 9
      * @return void
      */
     public function executeList(array $ids)
@@ -156,7 +158,7 @@ class ProductStats implements IndexerActionInterface, MviewActionInterface
 
             $this->logger->info('[IndexerLearn] PARTIAL reindex completed successfully');
         } catch (\Exception $e) {
-            $this->logger->error('[IndexerLearn] Partial reindex failed: ' . $e->getMessage());
+            $this->logger->error('[IndexerLearn] PARTIAL reindex failed: ' . $e->getMessage());
             throw $e;
         }
     }

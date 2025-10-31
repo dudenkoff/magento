@@ -7,16 +7,42 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     
-    <!-- Register CLI Commands -->
     <type name="Magento\Framework\Console\CommandList">
         <arguments>
             <argument name="commands" xsi:type="array">
-                <item name="dudenkoff_indexer_generate_data" xsi:type="object">Dudenkoff\IndexerLearn\Console\Command\GenerateDataCommand</item>
                 <item name="dudenkoff_indexer_show_stats" xsi:type="object">Dudenkoff\IndexerLearn\Console\Command\ShowStatsCommand</item>
-                <item name="dudenkoff_indexer_clear_data" xsi:type="object">Dudenkoff\IndexerLearn\Console\Command\ClearDataCommand</item>
+                <item name="dudenkoff_indexer_demo_realtime" xsi:type="object">Dudenkoff\IndexerLearn\Console\Command\DemoRealtimeIndexerCommand</item>
+                <item name="dudenkoff_indexer_test_model_save" xsi:type="object">Dudenkoff\IndexerLearn\Console\Command\TestModelSaveCommand</item>
             </argument>
         </arguments>
     </type>
     
+    <virtualType name="Dudenkoff\IndexerLearn\Logger\Handler\Cron" type="Magento\Framework\Logger\Handler\Base">
+        <arguments>
+            <argument name="fileName" xsi:type="string">/var/log/cron.log</argument>
+        </arguments>
+    </virtualType>
+    
+    <virtualType name="Dudenkoff\IndexerLearn\Logger\CronLogger" type="Magento\Framework\Logger\Monolog">
+        <arguments>
+            <argument name="name" xsi:type="string">cronLogger</argument>
+            <argument name="handlers" xsi:type="array">
+                <item name="cron" xsi:type="object">Dudenkoff\IndexerLearn\Logger\Handler\Cron</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    
+    <type name="Dudenkoff\IndexerLearn\Model\Indexer\ProductStats">
+        <arguments>
+            <argument name="logger" xsi:type="object">Dudenkoff\IndexerLearn\Logger\CronLogger</argument>
+        </arguments>
+    </type>
+    
+    <!-- Plugin to automatically reindex after model save -->
+    <type name="Dudenkoff\IndexerLearn\Model\ResourceModel\ProductStats">
+        <plugin name="dudenkoff_reindex_after_save" 
+                type="Dudenkoff\IndexerLearn\Plugin\ReindexAfterSavePlugin" 
+                sortOrder="100"/>
+    </type>
+    
 </config>
-
