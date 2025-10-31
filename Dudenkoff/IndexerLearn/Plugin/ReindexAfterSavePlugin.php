@@ -41,8 +41,8 @@ class ReindexAfterSavePlugin
      * 
      * PLUGIN TYPE: afterSave
      * - Executes AFTER the original save() method completes
-     * - Gets the result from original method
-     * - Can modify or just observe the result
+     * - Note: hasDataChanges() returns false after save because Magento clears the flag
+     * - So we always reindex (processor handles mode checking)
      * 
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource $subject
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource $result
@@ -54,26 +54,19 @@ class ReindexAfterSavePlugin
         $result,
         AbstractModel $object
     ) {
-        // Only reindex if data actually changed
-        if (!$object->hasDataChanges() && !$object->isObjectNew()) {
-            return $result;
-        }
-
         try {
             $entityId = $object->getId();
             
             if ($entityId) {
-                // Get the entity_id from the object (assumes it has an entity_id field)
                 // This automatically checks the indexer mode:
                 // - Realtime: triggers immediate reindex
                 // - Schedule: does nothing (mview handles it)
                 $this->productStatsProcessor->reindexRow($entityId);
                 
                 $mode = $this->productStatsProcessor->isIndexerScheduled() ? 'Schedule' : 'Realtime';
-                $action = $object->isObjectNew() ? 'created' : 'updated';
                 
                 $this->logger->info(
-                    "[IndexerLearn] Product stats {$action} (ID: {$entityId}). " .
+                    "[IndexerLearn] Product stats saved (ID: {$entityId}). " .
                     "Indexer mode: {$mode}"
                 );
             }

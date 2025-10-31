@@ -11,8 +11,6 @@
         <arguments>
             <argument name="commands" xsi:type="array">
                 <item name="dudenkoff_indexer_show_stats" xsi:type="object">Dudenkoff\IndexerLearn\Console\Command\ShowStatsCommand</item>
-                <item name="dudenkoff_indexer_demo_realtime" xsi:type="object">Dudenkoff\IndexerLearn\Console\Command\DemoRealtimeIndexerCommand</item>
-                <item name="dudenkoff_indexer_test_model_save" xsi:type="object">Dudenkoff\IndexerLearn\Console\Command\TestModelSaveCommand</item>
             </argument>
         </arguments>
     </type>
