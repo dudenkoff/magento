@@ -10,6 +10,12 @@
  * 4. Removing specific cache entries
  * 5. Cleaning cache by tags
  * 
+ * IMPLEMENTATION APPROACH:
+ * - Uses CustomCache (specific cache type) instead of CacheInterface
+ * - CustomCache::CACHE_TAG is automatically added by TagScope
+ * - Cleaner code with automatic tag management
+ * - Tightly coupled to our custom cache type
+ * 
  * CACHE BENEFITS:
  * - Faster data retrieval (memory vs database)
  * - Reduced database load
@@ -30,7 +36,6 @@
 
 namespace Dudenkoff\CacheLearn\Service;
 
-use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Serialize\SerializerInterface;
 use Dudenkoff\CacheLearn\Model\Cache\Type\CustomCache;
 use Psr\Log\LoggerInterface;
@@ -38,7 +43,7 @@ use Psr\Log\LoggerInterface;
 class CacheService
 {
     /**
-     * @var CacheInterface
+     * @var CustomCache
      */
     private $cache;
 
@@ -61,12 +66,12 @@ class CacheService
     const CACHE_LIFETIME = 3600; // 1 hour
 
     /**
-     * @param CacheInterface $cache
+     * @param CustomCache $cache
      * @param SerializerInterface $serializer
      * @param LoggerInterface $logger
      */
     public function __construct(
-        CacheInterface $cache,
+        CustomCache $cache,
         SerializerInterface $serializer,
         LoggerInterface $logger
     ) {
@@ -77,6 +82,9 @@ class CacheService
 
     /**
      * EXAMPLE 1: Save simple string to cache
+     * 
+     * Note: CustomCache::CACHE_TAG is automatically added by TagScope!
+     * We only need to specify additional tags here.
      * 
      * @param string $key Unique identifier for this cache entry
      * @param string $value Data to cache
@@ -89,8 +97,7 @@ class CacheService
         $lifetime = $lifetime ?? self::CACHE_LIFETIME;
         
         $tags = [
-            CustomCache::CACHE_TAG,
-            'simple_data'
+            'simple_data'  // CACHE_TAG automatically added by TagScope
         ];
 
         $this->logger->info("Saving to cache: {$cacheKey}");
@@ -106,7 +113,8 @@ class CacheService
     /**
      * EXAMPLE 2: Save complex data (arrays/objects) to cache
      * 
-     * Complex data must be serialized before caching
+     * Complex data must be serialized before caching.
+     * CustomCache::CACHE_TAG is automatically added by TagScope.
      * 
      * @param string $key
      * @param mixed $data Array or object to cache
@@ -122,8 +130,7 @@ class CacheService
         $serializedData = $this->serializer->serialize($data);
         
         $tags = [
-            CustomCache::CACHE_TAG,
-            'complex_data'
+            'complex_data'  // CACHE_TAG automatically added by TagScope
         ];
 
         $this->logger->info("Saving complex data to cache: {$cacheKey}");
@@ -207,7 +214,10 @@ class CacheService
      * EXAMPLE 7: Clear all cache entries with specific tag
      * 
      * This is useful when you want to clear a group of related cache entries
-     * without clearing the entire cache type
+     * without clearing the entire cache type.
+     * 
+     * Note: When using CustomCache directly, the clean() method will
+     * automatically include the CACHE_TAG in the cleaning scope.
      * 
      * @param string $tag
      * @return bool

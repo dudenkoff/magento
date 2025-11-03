@@ -100,17 +100,30 @@
         Try the API endpoints below and watch how cache improves performance!
     </div>
 
+    <div class="warning-box">
+        <strong>⚠️ Important Note About Cache Layers:</strong>
+        <p>This demo page is set to <code>cacheable="false"</code> so you can see real-time changes.</p>
+        <p><strong>Why?</strong> Magento has multiple cache layers:</p>
+        <ul>
+            <li><strong>Full Page Cache (FPC):</strong> Caches entire HTML pages</li>
+            <li><strong>Block Cache:</strong> Caches individual blocks</li>
+            <li><strong>Custom Cache:</strong> Caches specific data (what this module teaches)</li>
+        </ul>
+        <p>If FPC was enabled for this page, even "Current Time" would be cached! This page demonstrates 
+        <em>custom cache</em> operations, not FPC. The "Current Time" should update on every refresh.</p>
+    </div>
+
     <h2>📊 Live Cache Demo</h2>
     
     <div class="demo-card">
         <h3>Current Time vs Cached Time</h3>
         <div class="demo-result">
             <div class="label">Current Time (Not Cached):</div>
-            <div class="value"><?= $block->escapeHtml($block->getCurrentTime()) ?></div>
+            <div class="value"><?= $escaper->escapeHtml($block->getCurrentTime()) ?></div>
         </div>
         <div class="demo-result">
             <div class="label">Cached Time (Updates every 5 minutes):</div>
-            <div class="value"><?= $block->escapeHtml($block->getCachedTime()) ?></div>
+            <div class="value"><?= $escaper->escapeHtml($block->getCachedTime()) ?></div>
         </div>
         <p><strong>Notice:</strong> Current time changes on every refresh, but cached time stays the same until cache expires!</p>
     </div>
@@ -119,7 +132,7 @@
         <h3>Expensive Calculation (Cached)</h3>
         <div class="demo-result">
             <div class="label">Result of 1,000,000 iterations:</div>
-            <div class="value"><?= $block->escapeHtml($block->getExpensiveCalculation()) ?></div>
+            <div class="value"><?= $escaper->escapeHtml($block->getExpensiveCalculation()) ?></div>
         </div>
         <p><strong>Without cache:</strong> This calculation takes noticeable time.<br>
         <strong>With cache:</strong> Result is instant! (cached for 10 minutes)</p>
@@ -130,7 +143,7 @@
     <div class="demo-card">
         <h3>1. Simple String Cache</h3>
         <p>Demonstrates basic cache save/load with simple strings.</p>
-        <a href="<?= $block->escapeUrl($block->getUrl('cachelearn/demo/simple')) ?>" 
+        <a href="<?= $escaper->escapeUrl($block->getUrl('cachelearn/demo/simple')) ?>" 
            class="api-link" 
            target="_blank">
             Test Simple Cache →
@@ -147,7 +160,7 @@ Cache expires after 60 seconds
     <div class="demo-card">
         <h3>2. Complex Data Cache</h3>
         <p>Shows how to cache arrays and objects (serialization/deserialization).</p>
-        <a href="<?= $block->escapeUrl($block->getUrl('cachelearn/demo/complex')) ?>" 
+        <a href="<?= $escaper->escapeUrl($block->getUrl('cachelearn/demo/complex')) ?>" 
            class="api-link" 
            target="_blank">
             Test Complex Cache →
@@ -165,7 +178,7 @@ Cache expires after 5 minutes
     <div class="demo-card">
         <h3>3. Clear Cache</h3>
         <p>Demonstrates cache invalidation.</p>
-        <a href="<?= $block->escapeUrl($block->getUrl('cachelearn/demo/clear')) ?>" 
+        <a href="<?= $escaper->escapeUrl($block->getUrl('cachelearn/demo/clear')) ?>" 
            class="api-link" 
            target="_blank">
             Clear Demo Cache →
