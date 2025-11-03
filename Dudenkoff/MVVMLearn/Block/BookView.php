@@ -8,39 +8,62 @@ namespace Dudenkoff\MVVMLearn\Block;
 
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
-use Magento\Framework\Registry;
 use Magento\Framework\DataObject\IdentityInterface;
 use Dudenkoff\MVVMLearn\Api\Data\BookInterface;
+use Dudenkoff\MVVMLearn\Api\BookRepositoryInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 
 class BookView extends Template implements IdentityInterface
 {
     /**
-     * @var Registry
+     * @var BookRepositoryInterface
      */
-    private $registry;
+    private $bookRepository;
+
+    /**
+     * @var BookInterface|null|false
+     */
+    private $book;
 
     /**
      * @param Context $context
-     * @param Registry $registry
+     * @param BookRepositoryInterface $bookRepository
      * @param array $data
      */
     public function __construct(
         Context $context,
-        Registry $registry,
+        BookRepositoryInterface $bookRepository,
         array $data = []
     ) {
         parent::__construct($context, $data);
-        $this->registry = $registry;
+        $this->bookRepository = $bookRepository;
     }
 
     /**
      * Get current book
+     * 
+     * Loads book from DB once and caches it.
+     * Also sets the page title on first load.
      *
      * @return BookInterface|null
      */
     public function getBook(): ?BookInterface
     {
-        return $this->registry->registry('current_book');
+        if ($this->book === null) {
+            $bookId = (int)$this->getRequest()->getParam('id');
+            if ($bookId) {
+                try {
+                    $this->book = $this->bookRepository->getById($bookId);
+                    // Set page title when book is loaded
+                    $this->pageConfig->getTitle()->set($this->book->getTitle());
+                } catch (NoSuchEntityException $e) {
+                    $this->book = false;
+                }
+            } else {
+                $this->book = false;
+            }
+        }
+        return $this->book ?: null;
     }
 
     /**
@@ -98,7 +121,7 @@ class BookView extends Template implements IdentityInterface
     public function getIdentities()
     {
         $book = $this->getBook();
-        if ($book) {
+        if ($book instanceof IdentityInterface) {
             return $book->getIdentities();  // Use Model's cache tags
         }
         return [];
