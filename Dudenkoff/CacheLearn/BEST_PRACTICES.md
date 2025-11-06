@@ -775,3 +775,4 @@ public function getMonthlyReport($month)
 
 Remember: Good caching improves performance, bad caching causes bugs!
 
+

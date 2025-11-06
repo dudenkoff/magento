@@ -171,3 +171,4 @@ bin/magento setup:upgrade
 
 **Ready to dive deeper?** Read [BEST_PRACTICES.md](BEST_PRACTICES.md) for advanced patterns!
 
+

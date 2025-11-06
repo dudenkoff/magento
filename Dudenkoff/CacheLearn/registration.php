@@ -12,3 +12,4 @@ ComponentRegistrar::register(
     __DIR__
 );
 
+

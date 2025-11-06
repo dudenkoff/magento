@@ -505,3 +505,4 @@ Think of it like a light switch that only Magento respects. Your custom code can
 
 Now you understand why your cache works even when "disabled"! 🎉
 
+

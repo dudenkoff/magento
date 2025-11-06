@@ -280,3 +280,4 @@ Choose the **right cache layer** for your use case!
 
 **Now you understand:** The time wasn't changing because of FPC, not a bug in the custom cache! This is actually a great example of how powerful (and sometimes unexpected) FPC can be! 🎓
 
+
