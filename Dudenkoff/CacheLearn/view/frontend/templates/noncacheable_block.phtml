@@ -39,45 +39,6 @@ ul { line-height: 1.8; }
                 <li>Page must be <code>cacheable="false"</code> too, or FPC will cache the whole page</li>
             </ul>
         </div>
-        
-        <div class="info-box">
-            <p><strong>📁 Page Cache Files (FPC):</strong></p>
-            <div class="file-list">
-<?php 
-$files = $block->getPageCacheFiles();
-if (empty($files)): ?>
-                No Full Page Cache files found (correct - page is not cacheable)
-<?php else: 
-    foreach (array_slice($files, 0, 5) as $file): 
-        $cacheInfo = $block->getCacheInfo();
-?>
-                <?= $escaper->escapeHtml(basename($file)) ?>
-                Size: <?= $escaper->escapeHtml($cacheInfo->getFileSize($file)) ?>
-                Modified: <?= $escaper->escapeHtml($cacheInfo->getFileModTime($file)) ?>
-                
-<?php 
-    endforeach;
-    if (count($files) > 5): ?>
-                ... and <?= count($files) - 5 ?> more files
-<?php endif;
-endif; ?>
-            </div>
-        </div>
-        
-        <div class="info-box">
-            <p><strong>🔧 CLI Commands:</strong></p>
-            <div class="command-box">
-# View page cache files
-find var/page_cache -name "mage---*" -type f | head -5
-
-# Clear page cache
-rm -rf var/page_cache/*
-bin/magento cache:clean full_page
-
-# Disable FPC for development
-bin/magento cache:disable full_page
-            </div>
-        </div>
     </div>
 </div>
 

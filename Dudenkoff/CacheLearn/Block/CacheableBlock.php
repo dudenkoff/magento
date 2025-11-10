@@ -4,24 +4,31 @@
  */
 namespace Dudenkoff\CacheLearn\Block;
 
-use Magento\Framework\View\Element\Template;
 use Dudenkoff\CacheLearn\Helper\CacheInfo;
 use Magento\Framework\App\Cache\StateInterface;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
 
 class CacheableBlock extends Template
 {
+    private const CACHE_INFO_PLACEHOLDER = '<!--CACHE_FILE_INFO_PLACEHOLDER-->';
+
     private $cacheInfo;
     private $cacheState;
+    private $cacheJustSaved = false;
+    private $escaper;
 
     public function __construct(
         Template\Context $context,
         CacheInfo $cacheInfo,
         StateInterface $cacheState,
+        Escaper $escaper,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->cacheInfo = $cacheInfo;
         $this->cacheState = $cacheState;
+        $this->escaper = $escaper;
     }
 
     public function getGeneratedTime(): string
@@ -29,9 +36,43 @@ class CacheableBlock extends Template
         return date('Y-m-d H:i:s');
     }
 
-    public function getBlockCacheFiles(): array
+    /**
+     * Ensure the rendered HTML contains live cache metadata even on the first request.
+     */
+    public function toHtml()
     {
-        return $this->cacheInfo->findCacheFiles('BLOCK');
+        $this->cacheJustSaved = false;
+        $html = parent::toHtml();
+
+        $replacement = $this->buildCacheFileInfoHtml();
+        $updatedHtml = str_replace(self::CACHE_INFO_PLACEHOLDER, $replacement, $html);
+
+        if ($updatedHtml !== $html && $this->cacheJustSaved) {
+            $this->cacheJustSaved = false;
+            $this->_saveCache($updatedHtml);
+        }
+
+        return $updatedHtml;
+    }
+
+    /**
+     * Tracks whether Magento saved the block output during this request.
+     *
+     * @param string $data
+     * @return void
+     */
+    protected function _saveCache($data)
+    {
+        $this->cacheJustSaved = true;
+        parent::_saveCache($data);
+    }
+
+    /**
+     * Returns a marker that will later be replaced with live cache metadata.
+     */
+    public function renderCacheFileInfoPlaceholder(): string
+    {
+        return self::CACHE_INFO_PLACEHOLDER;
     }
 
     /**
@@ -109,6 +150,22 @@ class CacheableBlock extends Template
     public function getCacheInfo(): CacheInfo
     {
         return $this->cacheInfo;
+    }
+
+    /**
+     * Build HTML snippet describing the cache file state.
+     */
+    private function buildCacheFileInfoHtml(): string
+    {
+        $cacheKey = $this->getBlockCacheKey();
+        $cacheInfo = $this->getCacheInfo();
+        $actualPath = $this->getActualCacheFilePath();
+
+        if (!$actualPath || !file_exists($actualPath)) {
+            return '<div>Cache file not available yet.</div>';
+        }
+
+        return '<div>Full Path: ' . $this->escaper->escapeHtml($actualPath) . '</div>';
     }
 }
 
