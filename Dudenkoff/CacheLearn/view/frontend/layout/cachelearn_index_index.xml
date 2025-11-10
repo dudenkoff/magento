@@ -1,25 +1,33 @@
 <?xml version="1.0"?>
-<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd"
       cacheable="false">
     <body>
         <referenceContainer name="content">
             <!-- Non-Cacheable Block (always fresh) -->
-            <block class="Dudenkoff\CacheLearn\Block\NonCacheableBlock" 
-                   name="noncacheable.block" 
+            <block class="Dudenkoff\CacheLearn\Block\NonCacheableBlock"
+                   name="cachelearn.noncacheable.block"
                    template="Dudenkoff_CacheLearn::noncacheable_block.phtml"
                    cacheable="false"/>
-            
+
             <!-- Cacheable Block (HTML cached for 5 minutes) -->
-            <block class="Dudenkoff\CacheLearn\Block\CacheableBlock" 
-                   name="cacheable.block" 
+            <block class="Dudenkoff\CacheLearn\Block\CacheableBlock"
+                   name="cachelearn.cacheable.block"
                    template="Dudenkoff_CacheLearn::cacheable_block.phtml"
                    cacheable="true">
                 <arguments>
                     <argument name="cache_lifetime" xsi:type="number">300</argument>
                 </arguments>
             </block>
+
+            <!-- Custom Cache Demo (data caching example) -->
+            <block class="Dudenkoff\CacheLearn\Block\CustomCacheDemo"
+                   name="cachelearn.customcache.block"
+                   template="Dudenkoff_CacheLearn::custom_cache_demo.phtml"
+                   cacheable="false"/>
         </referenceContainer>
     </body>
 </page>
+
+
 

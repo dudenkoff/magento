@@ -18,26 +18,8 @@ ul { line-height: 1.8; }
     <div class="block-container">
         <h2>🔴 NON-CACHEABLE BLOCK</h2>
         
-        <div class="info-box">
-            <p><strong>Settings:</strong></p>
-            <ul>
-                <li><code>cacheable="false"</code></li>
-                <li><code>class="Dudenkoff\CacheLearn\Block\NonCacheableBlock"</code></li>
-            </ul>
-        </div>
-        
         <div class="time-display">
             Current Time: <?= $escaper->escapeHtml($block->getCurrentTime()) ?>
-        </div>
-        
-        <div class="info-box">
-            <p><strong>✅ What's Happening:</strong></p>
-            <ul>
-                <li>This block is <strong>regenerated on EVERY request</strong></li>
-                <li>The timestamp above <strong>updates every time</strong> you refresh</li>
-                <li>No HTML is cached</li>
-                <li>Page must be <code>cacheable="false"</code> too, or FPC will cache the whole page</li>
-            </ul>
         </div>
     </div>
 </div>

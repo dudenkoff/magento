@@ -16,12 +16,17 @@ $exampleData = $block->getExampleData();
         <h2>🔵 CUSTOM CACHE DEMO</h2>
         
         <div class="info-box">
-            <p><strong>Cache Type:</strong></p>
+            <p><strong>Settings:</strong></p>
             <ul>
-                <li><code>Type: learn_cache</code></li>
-                <li><code>Tag: LEARN_CACHE</code></li>
-                <li><code>Lifetime: 300 seconds (5 minutes)</code></li>
-                <li><code>Class: Dudenkoff\CacheLearn\Model\Cache\Type\LearnCache</code></li>
+                <li>
+                    <strong>learn_cache status:</strong>
+                    <?php if ($block->isCustomCacheEnabled()): ?>
+                        <span style="color: green;">✅ ENABLED</span>
+                    <?php else: ?>
+                        <span style="color: red;">❌ DISABLED</span> – enable with:
+                        <code>bin/magento cache:enable learn_cache</code>
+                    <?php endif; ?>
+                </li>
             </ul>
         </div>
         
@@ -33,101 +38,6 @@ $exampleData = $block->getExampleData();
             <div class="data-row">
                 <strong>Random Number:</strong> <?= $escaper->escapeHtml($exampleData['random_number']) ?>
             </div>
-            <div class="data-row">
-                <strong>Message:</strong> <?= $escaper->escapeHtml($exampleData['message']) ?>
-            </div>
-        </div>
-        
-        <div class="info-box">
-            <p><strong>✅ What's Happening:</strong></p>
-            <ul>
-                <li>This is <strong>custom cache</strong> - NOT block cache or FPC</li>
-                <li>Only the <strong>DATA</strong> is cached (not HTML)</li>
-                <li>Random number is generated once, then <strong>cached for 5 minutes</strong></li>
-                <li>Refresh page - you'll see the <strong>same number</strong> for 5 minutes</li>
-                <li>After 5 minutes, a <strong>new random number</strong> will be generated</li>
-            </ul>
-        </div>
-        
-        <div class="info-box">
-            <p><strong>📁 Custom Cache Files:</strong></p>
-            <div class="file-list">
-<?php 
-$files = $block->getCustomCacheFiles();
-$cacheInfo = $block->getCacheInfo();
-if (empty($files)): ?>
-                Cache files will appear here after data is cached.
-                Full path: <?= $escaper->escapeHtml($cacheInfo->getCacheDir()) ?>/mage--X/mage---69d_LEARN_CACHE_*
-<?php else: 
-    foreach ($files as $file): ?>
-                <?= $escaper->escapeHtml($file) ?>
-                Size: <?= $escaper->escapeHtml($cacheInfo->getFileSize($file)) ?>
-                Modified: <?= $escaper->escapeHtml($cacheInfo->getFileModTime($file)) ?>
-                
-<?php 
-    endforeach;
-endif; ?>
-            </div>
-        </div>
-        
-        <div class="info-box">
-            <p><strong>🔧 CLI Commands for Custom Cache:</strong></p>
-            <div class="command-box">
-# View cache status
-bin/magento cache:status
-
-# Enable custom cache type
-bin/magento cache:enable learn_cache
-
-# Clean custom cache type  
-bin/magento cache:clean learn_cache
-
-# Flush custom cache type
-bin/magento cache:flush learn_cache
-
-# Find custom cache files
-find var/cache -name "*LEARN_CACHE*" -type f
-
-# View cache file content
-cat var/cache/mage--X/mage---69d_LEARN_CACHE_EXAMPLE
-            </div>
-        </div>
-        
-        <div class="info-box">
-            <p><strong>📝 How This Works in Code:</strong></p>
-            <div class="command-box">
-// Save to cache
-$data = ['generated_at' => date('Y-m-d H:i:s'), 'random_number' => rand()];
-$serialized = $this->serializer->serialize($data);
-$this->cache->save($serialized, 'learn_cache_example', [], 300);
-
-// Load from cache
-$cached = $this->cache->load('learn_cache_example');
-if ($cached) {
-    $data = $this->serializer->unserialize($cached);
-}
-
-// Key becomes: mage---69d_LEARN_CACHE_EXAMPLE
-            </div>
-        </div>
-        
-        <div class="info-box">
-            <p><strong>📊 Three Types of Cache Demonstrated:</strong></p>
-            <ul>
-                <li><strong>Full Page Cache (FPC):</strong> Entire HTML page - see var/page_cache/</li>
-                <li><strong>Block Cache:</strong> Individual block HTML - see <a href="/cachelearn/blockcache">/cachelearn/blockcache</a></li>
-                <li><strong>Custom Cache (This page):</strong> Your data - see var/cache/mage--*/LEARN_CACHE*</li>
-            </ul>
-        </div>
-        
-        <div class="info-box">
-            <p><strong>🧪 Test It:</strong></p>
-            <ol>
-                <li>Note the "Random Number" above</li>
-                <li>Refresh the page multiple times - <strong>number stays the same</strong></li>
-                <li>Run: <code>bin/magento cache:clean learn_cache</code></li>
-                <li>Refresh again - <strong>new random number!</strong></li>
-            </ol>
         </div>
     </div>
 </div>

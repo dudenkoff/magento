@@ -4,28 +4,32 @@
  */
 namespace Dudenkoff\CacheLearn\Block;
 
-use Magento\Framework\View\Element\Template;
-use Dudenkoff\CacheLearn\Model\Cache\Type\LearnCache;
 use Dudenkoff\CacheLearn\Helper\CacheInfo;
+use Dudenkoff\CacheLearn\Model\Cache\Type\LearnCache;
+use Magento\Framework\App\Cache\StateInterface;
 use Magento\Framework\Serialize\SerializerInterface;
+use Magento\Framework\View\Element\Template;
 
 class CustomCacheDemo extends Template
 {
     private $cache;
     private $cacheInfo;
     private $serializer;
+    private $cacheState;
 
     public function __construct(
         Template\Context $context,
         LearnCache $cache,
         CacheInfo $cacheInfo,
         SerializerInterface $serializer,
+        StateInterface $cacheState,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->cache = $cache;
         $this->cacheInfo = $cacheInfo;
         $this->serializer = $serializer;
+        $this->cacheState = $cacheState;
     }
 
     /**
@@ -61,7 +65,6 @@ class CustomCacheDemo extends Template
             $cached = [
                 'generated_at' => date('Y-m-d H:i:s'),
                 'random_number' => rand(1000, 9999),
-                'message' => 'This data was just generated!'
             ];
             $this->saveToCache($key, $cached, 300);
         }
@@ -80,6 +83,11 @@ class CustomCacheDemo extends Template
     public function getCacheInfo(): CacheInfo
     {
         return $this->cacheInfo;
+    }
+
+    public function isCustomCacheEnabled(): bool
+    {
+        return $this->cacheState->isEnabled(LearnCache::TYPE_IDENTIFIER);
     }
 }
 

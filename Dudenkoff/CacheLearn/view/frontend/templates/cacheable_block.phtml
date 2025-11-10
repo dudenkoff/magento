@@ -15,10 +15,7 @@
         <div class="info-box">
             <p><strong>Settings:</strong></p>
             <ul>
-                <li><code>cacheable="true"</code></li>
-                <li><code>cache_lifetime="300"</code> (5 minutes)</li>
-                <li><code>class="Dudenkoff\CacheLearn\Block\CacheableBlock"</code></li>
-                <li><strong>block_html cache:</strong> 
+                <li><strong>block_html cache status:</strong> 
                     <?php if ($block->isBlockCacheEnabled()): ?>
                         <span style="color: green;">✅ ENABLED</span>
                     <?php else: ?>
@@ -30,16 +27,6 @@
         
         <div class="time-display" style="border-left-color: #4caf50; color: #2e7d32;">
             Generated At: <?= $escaper->escapeHtml($block->getGeneratedTime()) ?>
-        </div>
-        
-        <div class="info-box">
-            <p><strong>✅ What's Happening:</strong></p>
-            <ul>
-                <li>This block's <strong>HTML is cached</strong></li>
-                <li>The timestamp above was <strong>frozen when cache was created</strong></li>
-                <li>Refresh multiple times - timestamp <strong>won't change</strong> for 5 minutes</li>
-                <li>After 5 minutes, cache expires and new timestamp will be generated</li>
-            </ul>
         </div>
         
         <div class="info-box">
