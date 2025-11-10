@@ -1,23 +1,11 @@
 <?xml version="1.0"?>
-<!--
-    CUSTOM CACHE TYPE DEFINITION
-    
-    This registers a new cache type that will appear in:
-    Admin Panel: System > Cache Management
-    CLI: bin/magento cache:status
-    
-    Cache types allow you to:
-    - Group related cached data together
-    - Enable/disable specific cache groups
-    - Clear specific cache groups without affecting others
--->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Cache/etc/cache.xsd">
-    <type name="dudenkoff_custom_cache" 
+    <type name="learn_cache" 
           translate="label,description" 
-          instance="Dudenkoff\CacheLearn\Model\Cache\Type\CustomCache">
-        <label>Dudenkoff Custom Cache</label>
-        <description>Cache for custom data examples and learning purposes</description>
+          instance="Dudenkoff\CacheLearn\Model\Cache\Type\LearnCache">
+        <label>Learning Custom Cache</label>
+        <description>Custom cache type for learning Magento caching</description>
     </type>
 </config>
 

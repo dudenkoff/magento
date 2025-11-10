@@ -1,0 +1,129 @@
+<?php
+/**
+ * @var \Dudenkoff\CacheLearn\Block\CacheableBlock $block
+ */
+?>
+<style>
+.cacheable-container { border: 3px solid #4caf50; background: #e8f5e9; padding: 20px; margin: 20px 0; border-radius: 8px; }
+.cacheable-container h2 { margin-top: 0; color: #2e7d32; }
+</style>
+
+<div class="cache-demo">
+    <div class="cacheable-container">
+        <h2>🟢 CACHEABLE BLOCK</h2>
+        
+        <div class="info-box">
+            <p><strong>Settings:</strong></p>
+            <ul>
+                <li><code>cacheable="true"</code></li>
+                <li><code>cache_lifetime="300"</code> (5 minutes)</li>
+                <li><code>class="Dudenkoff\CacheLearn\Block\CacheableBlock"</code></li>
+                <li><strong>block_html cache:</strong> 
+                    <?php if ($block->isBlockCacheEnabled()): ?>
+                        <span style="color: green;">✅ ENABLED</span>
+                    <?php else: ?>
+                        <span style="color: red;">❌ DISABLED</span> - Enable it with: <code>bin/magento cache:enable block_html</code>
+                    <?php endif; ?>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="time-display" style="border-left-color: #4caf50; color: #2e7d32;">
+            Generated At: <?= $escaper->escapeHtml($block->getGeneratedTime()) ?>
+        </div>
+        
+        <div class="info-box">
+            <p><strong>✅ What's Happening:</strong></p>
+            <ul>
+                <li>This block's <strong>HTML is cached</strong></li>
+                <li>The timestamp above was <strong>frozen when cache was created</strong></li>
+                <li>Refresh multiple times - timestamp <strong>won't change</strong> for 5 minutes</li>
+                <li>After 5 minutes, cache expires and new timestamp will be generated</li>
+            </ul>
+        </div>
+        
+        <div class="info-box">
+            <p><strong>📁 Block Cache Files:</strong></p>
+            <div class="file-list">
+<?php 
+$files = $block->getBlockCacheFiles();
+if (empty($files)): ?>
+                No block cache files found yet. Refresh the page to generate cache.
+<?php else: 
+    foreach (array_slice($files, 0, 10) as $file): 
+        $cacheInfo = $block->getCacheInfo();
+?>
+                <?= $escaper->escapeHtml(basename($file)) ?>
+                Size: <?= $escaper->escapeHtml($cacheInfo->getFileSize($file)) ?>
+                Modified: <?= $escaper->escapeHtml($cacheInfo->getFileModTime($file)) ?>
+                
+<?php 
+    endforeach;
+    if (count($files) > 10): ?>
+                ... and <?= count($files) - 10 ?> more files
+<?php endif;
+endif; ?>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <p><strong>🔍 THIS Block's Cache File (LIVE):</strong></p>
+            <div class="file-list">
+<?php
+$actualPath = $block->getActualCacheFilePath();
+$cacheKey = $block->getBlockCacheKey();
+$cacheInfo = $block->getCacheInfo();
+
+if ($actualPath && file_exists($actualPath)):
+?>
+✅ CACHE FILE FOUND!
+
+Full Path: <?= $escaper->escapeHtml($actualPath) ?>
+
+Filename: <?= $escaper->escapeHtml(basename($actualPath)) ?>
+
+Size: <?= $escaper->escapeHtml($cacheInfo->getFileSize($actualPath)) ?>
+
+Modified: <?= $escaper->escapeHtml($cacheInfo->getFileModTime($actualPath)) ?>
+
+Cache Key: <?= $escaper->escapeHtml($cacheKey) ?>
+
+<?php
+else:
+?>
+❌ CACHE FILE NOT FOUND
+
+Possible reasons:
+1. block_html cache is disabled
+2. Page just loaded (cache being created now)
+3. Cache was recently cleared
+
+Cache Key: <?= $escaper->escapeHtml($cacheKey) ?>
+
+Search Pattern: <?= $escaper->escapeHtml($block->getCacheFilePattern()) ?>
+
+<?php endif; ?>
+            </div>
+            <div class="command-box">
+# Find THIS block's cache file:
+find var/cache -name "*<?= $escaper->escapeHtml(substr($cacheKey, 0, 20)) ?>*"
+
+# View all block cache files:
+find var/cache -name "*BLOCK*" -type f
+
+# View this block's cache key:
+# <?= $escaper->escapeHtml($cacheKey) ?>
+
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <p><strong>📊 Compare with Non-Cacheable Block Above:</strong></p>
+            <ul>
+                <li><strong>Non-Cacheable (Red):</strong> Time updates every refresh ⏰</li>
+                <li><strong>Cacheable (Green):</strong> Time is frozen for 5 minutes ❄️</li>
+            </ul>
+        </div>
+    </div>
+</div>
+

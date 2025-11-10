@@ -1,7 +1,7 @@
 <?php
 /**
  * Copyright © Dudenkoff. All rights reserved.
- * CacheLearn Module Registration
+ * Cache Learning Module - Registration
  */
 
 use Magento\Framework\Component\ComponentRegistrar;
@@ -11,5 +11,4 @@ ComponentRegistrar::register(
     'Dudenkoff_CacheLearn',
     __DIR__
 );
-
 
